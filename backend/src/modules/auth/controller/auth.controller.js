@@ -128,7 +128,25 @@ export const forgotPassword = async (req, res) => {
     await sendEmail({
       to: user.email,
       subject: "Password Reset OTP",
-      text: `Your OTP for password reset is ${otp}. It will expire in 10 minutes.`,
+      text: `Dear User,
+
+We received a request to reset the password associated with your account.
+
+Please use the **6-digit One-Time Password (OTP)** provided below to proceed with resetting your password:
+
+OTP: ${otp}
+This OTP is valid for the next **10 minutes**.
+For security reasons, please do not share this OTP with anyone.
+
+If you did not request a password reset, please ignore this email or contact our support team immediately.
+
+Thank you for your cooperation.
+
+Regards,
+Prakhar Attarde
+Support Team
+NGO App
+`,
     });
 
     res.status(200).json({
