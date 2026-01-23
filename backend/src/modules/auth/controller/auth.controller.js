@@ -2,6 +2,8 @@
 
 import User from "../models/user.model.js";
 import { generateToken } from "../../../utils/jwt.js";
+import { generateOtp } from "../../../utils/otp.js";
+import { sendEmail } from "../../../utils/email.js";
 
 // Register
 export const register = async (req, res) => {
@@ -100,6 +102,88 @@ export const refreshToken = async (req, res) => {
     res.status(401).json({
       success: false,
       message: "Token refresh failed",
+    });
+  }
+};
+
+//Forgot Password
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      res.status(404).json({
+        succes: false,
+        message: "User not found",
+      });
+    }
+
+    const otp = generateOtp();
+
+    user.otp = otp;
+    user.otpExpiry = Date.now() + 10 * 60 * 1000;
+    await user.save();
+
+    await sendEmail({
+      to: user.email,
+      subject: "Password Reset OTP",
+      text: `Your OTP for password reset is ${otp}. It will expire in 10 minutes.`,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "OTP sent to email",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Reset Password
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user || !user.otp || !user.otpExpiry) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid request",
+      });
+    }
+
+    if (user.otp !== otp) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid OTP",
+      });
+    }
+
+    if (Date.now() > user.otpExpiry) {
+      return res.status(400).json({
+        success: false,
+        message: "OTP expired",
+      });
+    }
+
+    user.password = newPassword;
+    user.otp = undefined;
+    user.otpExpiry = undefined;
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successful",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
     });
   }
 };
