@@ -14,12 +14,9 @@ router.post(
     { name: "addressProof" },
     { name: "bankProof" },
     { name: "authorizedPersonId" },
-
     { name: "fssaiLicense" },
     { name: "gstCertificate" },
     { name: "businessRegistration" },
-    { name: "panCard" },
-    { name: "addressProof" },
     { name: "ownerId" },
   ]),
   completeProfile,

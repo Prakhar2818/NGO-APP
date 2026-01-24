@@ -13,5 +13,5 @@ export const env = {
   emailPassword: process.env.EMAIL_PASS,
   supabasePublicUrl: process.env.VITE_SUPABASE_URL,
   supabaseServiceKey: process.env.VITE_SUPABASE_SERVICE_ROLE_KEY,
-  supabaseBucket: process.env.SUPABASE_BUCKET,
+  supabaseBucket: process.env.VITE_SUPABASE_BUCKET,
 };

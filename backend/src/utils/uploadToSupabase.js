@@ -9,7 +9,6 @@ export const uploadTosupabase = async (file, folder, userId) => {
     .upload(filePath, file.buffer, {
       contentType: file.mimetype,
       upsert: false,
-      s,
     });
 
   if (error) throw error;
