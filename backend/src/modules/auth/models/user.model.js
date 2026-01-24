@@ -27,6 +27,27 @@ const userSchema = new mongoose.Schema(
       enum: ["RESTAURANT", "NGO", "ADMIN"],
       required: true,
     },
+    profileCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    documnets: {
+      ngo: {
+        registrationCertificate: String,
+        panCard: String,
+        addressProof: String,
+        bankProof: String,
+        authorizedPersonId: String,
+      },
+      restaurant: {
+        fssaiLicense: String,
+        gstCertificate: String,
+        businessRegistration: String,
+        panCard: String,
+        addressProof: String,
+        ownerId: String,
+      },
+    },
     otp: {
       type: String,
     },
