@@ -2,6 +2,8 @@ import express from "express";
 import { protect } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/upload.middleware.js";
 import { completeProfile } from "../controller/profile.controller.js";
+import {completeRegistrationSchema} from "../validations/auth.validation.js"
+import { validate } from "../middleware/validate.middleware.js";
 
 const router = express.Router();
 
@@ -19,6 +21,7 @@ router.post(
     { name: "businessRegistration" },
     { name: "ownerId" },
   ]),
+  validate(completeRegistrationSchema),
   completeProfile,
 );
 

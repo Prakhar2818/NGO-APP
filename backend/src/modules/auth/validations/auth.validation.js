@@ -27,6 +27,15 @@ export const resetPasswordSchema = z.object({
 });
 
 export const completeRegistrationSchema = z.object({
-  organizatioName: z.string().min(1, "Organization name required"),
-  address: z.string().min(5, "Address is required"),
+  organizationName: z
+    .string()
+    .refine((val) => val && val.trim().length > 0, {
+      message: "Organization name required",
+    }),
+
+  address: z
+    .string()
+    .refine((val) => val && val.trim().length >= 5, {
+      message: "Address is required",
+    }),
 });

@@ -27,6 +27,18 @@ const userSchema = new mongoose.Schema(
       enum: ["RESTAURANT", "NGO", "ADMIN"],
       required: true,
     },
+    organizationName: {
+      type: String,
+      trim: true,
+    },
+    address: {
+      type: String,
+      trim: true,
+    },
+    phone: {
+      type: Number,
+      trim: true,
+    },
     profileCompleted: {
       type: Boolean,
       default: false,
