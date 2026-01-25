@@ -56,16 +56,13 @@ const Register = () => {
           placeholder="Full Name"
           className="border p-2 w-full mb-3"
           onChange={handleChange}
-          required
         />
 
         <input
-          type="email"
           name="email"
           placeholder="Email"
           className="border p-2 w-full mb-3"
           onChange={handleChange}
-          required
         />
 
         <input
@@ -74,7 +71,6 @@ const Register = () => {
           placeholder="Password"
           className="border p-2 w-full mb-3"
           onChange={handleChange}
-          required
         />
 
         <select

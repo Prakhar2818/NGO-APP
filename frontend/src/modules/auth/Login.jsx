@@ -53,7 +53,6 @@ const Login = () => {
           placeholder="Email"
           className="border p-2 w-full mb-3"
           onChange={handleChange}
-          required
         />
 
         <input
@@ -62,7 +61,6 @@ const Login = () => {
           placeholder="Password"
           className="border p-2 w-full mb-3"
           onChange={handleChange}
-          required
         />
 
         <button className="bg-blue-600 text-white w-full p-2">

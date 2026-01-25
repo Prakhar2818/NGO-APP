@@ -37,7 +37,6 @@ const ForgotPassword = () => {
           className="border p-2 w-full mb-3"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          required
         />
 
         <button className="bg-blue-600 text-white w-full p-2">

@@ -37,9 +37,9 @@ const ResetPassword = () => {
       <form onSubmit={handleSubmit} className="bg-white p-6 shadow w-96">
         <h2 className="text-xl mb-4">Reset Password</h2>
 
-        <input name="email" placeholder="Email" className="border p-2 w-full mb-2" onChange={handleChange} required />
-        <input name="otp" placeholder="OTP" className="border p-2 w-full mb-2" onChange={handleChange} required />
-        <input type="password" name="newPassword" placeholder="New Password" className="border p-2 w-full mb-3" onChange={handleChange} required />
+        <input name="email" placeholder="Email" className="border p-2 w-full mb-2" onChange={handleChange} />
+        <input name="otp" placeholder="OTP" className="border p-2 w-full mb-2" onChange={handleChange} />
+        <input type="password" name="newPassword" placeholder="New Password" className="border p-2 w-full mb-3" onChange={handleChange} />
 
         <button className="bg-green-600 text-white w-full p-2">
           Reset Password
