@@ -1,6 +1,7 @@
 export const validate = (schema) => (req, res, next) => {
   try {
-    schema.parse(req.body);
+    const validationSchema = typeof schema === 'function' ? schema(req) : schema;
+    validationSchema.parse(req.body);
     next();
   } catch (err) {
     return res.status(400).json({

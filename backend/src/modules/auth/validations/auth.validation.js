@@ -29,14 +29,22 @@ export const forgotPasswordSchema = z.object({
 export const resetPasswordSchema = z.object({
   email: emailFormat,
   otp: z.string().min(6, "OTP required"),
-  newPassword: z.string().min(6, "Password must be at least 6 characters"),});
-
-export const completeRegistrationSchema = z.object({
-  organizationName: z.string().refine((val) => val && val.trim().length > 0, {
-    message: "Organization name required",
-  }),
-
-  address: z.string().refine((val) => val && val.trim().length >= 5, {
-    message: "Address is required",
-  }),
+  newPassword: z.string().min(6, "Password must be at least 6 characters"),
 });
+
+export const completeRegistrationSchema = (req) => {
+  const role = req.user.role;
+  const baseSchema = {
+    address: z.string().min(1, "Address Required"),
+  };
+
+  if (role === "NGO") {
+    baseSchema.organizationName = z
+      .string()
+      .min(2, "Organization name required");
+  } else if (role === "RESTAURANT") {
+    baseSchema.restaurantName = z.string().min(2, "Restuarant name required");
+  }
+
+  return z.object(baseSchema);
+};

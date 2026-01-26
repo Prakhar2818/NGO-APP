@@ -31,6 +31,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
+    restuarantName: {
+      type: String,
+      trim: true,
+    },
     address: {
       type: String,
       trim: true,

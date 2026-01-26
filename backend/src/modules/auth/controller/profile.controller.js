@@ -13,6 +13,15 @@ export const completeProfile = async (req, res) => {
       });
     }
 
+    // Update profile data
+    if (role === "NGO") {
+      user.organizationName = req.body.organizationName;
+    } else if (role === "RESTAURANT") {
+      user.organizationName = req.body.restaurantName;
+    }
+    user.address = req.body.address;
+    user.phone = req.body.phone;
+
     const files = req.files;
 
     const uploadedDocs = {};

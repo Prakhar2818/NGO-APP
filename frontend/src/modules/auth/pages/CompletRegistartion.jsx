@@ -31,7 +31,7 @@ const CompleteRegistration = () => {
     try {
       const formData = new FormData()
       Object.keys(form).forEach((key) => {
-        if (form[key]) formData.append(key, form[key])
+        formData.append(key, form[key])
       })
 
       Object.keys(files).forEach((key) => {
@@ -55,7 +55,7 @@ const CompleteRegistration = () => {
       }, 1500)
     } catch (error) {
       toast.error(
-        error.response.data.message || "Registration failed"
+        error?.response?.data?.message || "Registration failed"
       )
     }
   }
