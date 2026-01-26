@@ -27,6 +27,16 @@ export const removeToken = () => {
   localStorage.removeItem("role");
 };
 
+// Set profile completed from localStorage
+export const setProfileCompleted = (profile) => {
+  localStorage.setItem("profileCompleted", profile.toString());
+};
+
+//Get profile completed localStorage
+export const getProfileCompleted = () => {
+  return localStorage.getItem("profileCompleted") === "true";
+};
+
 // Check if user is authenticated
 export const isAuthenticated = () => {
   const token = getToken();

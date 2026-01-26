@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
-import { setToken, setRole } from "../../utils/token";
+import { setToken, setRole, setProfileCompleted, getProfileCompleted, getRole } from "../../utils/token";
 
 import { toast } from "react-toastify"
 
@@ -28,13 +28,25 @@ const Login = () => {
       setToken(res.data.token);
       setRole(res.data.role)
 
+      setProfileCompleted(res.data.profileCompleted)
+
       toast.success("Login Successfull")
 
-      // ✅ ROLE-BASED REDIRECT
-      const role = res.data.role;
-      if (role === "ADMIN") navigate("/admin");
-      else if (role === "NGO") navigate("/ngo");
-      else navigate("/restaurant");
+      const profileCompleted = getProfileCompleted()
+      const role = getRole()
+
+      if (!profileCompleted) {
+        navigate("/complete-registration", { replace: true })
+        return
+      }
+
+      if (role === "ADMIN") {
+        navigate("/admin")
+      } else if (role === "NGO") {
+        navigate("/ngo")
+      } else {
+        navigate("/restaurant")
+      }
     } catch (err) {
       toast.error(err.response?.data?.message || "Login failed")
     }
