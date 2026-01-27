@@ -1,13 +1,15 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom"
-import { Navigate } from "react-router-dom"
 
-import Login from "../modules/auth/Login"
-import Register from "../modules/auth/Register"
-import ForgotPassword from "../modules/auth/ForgotPassword"
-import ResetPassword from "../modules/auth/ResetPassword"
+import Login from "../modules/auth/pages/Login"
+import Register from "../modules/auth/pages/Register"
+import ForgotPassword from "../modules/auth/pages/ForgotPassword"
+import ResetPassword from "../modules/auth/pages/ResetPassword"
 import ProtectedRoutes from "./ProtectedRoutes"
 import CompleteRegistration from "../modules/auth/pages/CompletRegistartion"
 import ProfileGuard from "./ProfileGuard"
+import NGODashboard from "../modules/auth/pages/dashboard/NGODashboard"
+import RestaurantDashboard from "../modules/auth/pages/dashboard/RestaurantDashboard"
+import AdminDashboard from "../modules/auth/pages/dashboard/AdminDashboard"
 
 
 const AppRouter = () => {
@@ -31,7 +33,7 @@ const AppRouter = () => {
         <Route path="/ngo" element={
           <ProtectedRoutes>
             <ProfileGuard>
-              <h1>NGO Dashboard</h1>
+              <NGODashboard />
             </ProfileGuard>
           </ProtectedRoutes>
         } />
@@ -39,14 +41,14 @@ const AppRouter = () => {
         <Route path="/restaurant" element={
           <ProtectedRoutes>
             <ProfileGuard>
-              <h1>Restaurant Dashboard</h1>
+              <RestaurantDashboard />
             </ProfileGuard>
           </ProtectedRoutes>
         } />
 
         <Route path="/admin" element={
           <ProtectedRoutes>
-            <h1>Admin Darshboard</h1>
+            <AdminDashboard />
           </ProtectedRoutes>
         } />
 

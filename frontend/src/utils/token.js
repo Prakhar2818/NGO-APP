@@ -22,10 +22,6 @@ export const getRole = () => {
 };
 
 // Remove token from localStorage (logout)
-export const removeToken = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("role");
-};
 
 // Set profile completed from localStorage
 export const setProfileCompleted = (profile) => {
@@ -35,6 +31,12 @@ export const setProfileCompleted = (profile) => {
 //Get profile completed localStorage
 export const getProfileCompleted = () => {
   return localStorage.getItem("profileCompleted") === "true";
+};
+
+export const removeToken = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("role");
+  localStorage.removeItem("profileCompleted")
 };
 
 // Check if user is authenticated

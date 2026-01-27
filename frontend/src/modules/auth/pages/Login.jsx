@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../services/api";
+import api from "../../../services/api.js";
 import {
   setToken,
   setRole,
   setProfileCompleted,
   getProfileCompleted,
   getRole,
-} from "../../utils/token";
+} from "../../../utils/token.js";
 import { toast } from "react-toastify";
 
 const Login = () => {
