@@ -41,52 +41,81 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-indigo-100 to-pink-100 font-mono">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded shadow-md w-96"
+        className="w-full max-w-md bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 transition hover:shadow-purple-200"
       >
-        <h2 className="text-2xl font-semibold mb-4 text-center">
-          Register
+        <h2 className="text-4xl font-bold text-center text-purple-700 mb-2">
+          Create Account
         </h2>
+        <p className="text-center text-xl text-gray-500 mb-6">
+          Register
+        </p>
 
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          className="border p-2 w-full mb-3"
-          onChange={handleChange}
-        />
+        <div className="mb-3">
+          <label className="block text-m font-semibold text-purple-600 mb-2" >Full Name</label>
+          <div className="flex items-center border border-purple-300 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500">
+            <input
+              type="text"
+              name="name"
+              placeholder="Full Name"
+              className="w-full outline-none bg-transparent"
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+        <div className="mb-3">
+          <label className="block text-m font-semibold text-purple-600 mb-2">Email</label>
+          <div className="flex items-center border border-purple-300 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500">
+            <input
+              name="email"
+              placeholder="Email"
+              className="w-full outline-none bg-transparent"
+              onChange={handleChange}
+            />
+          </div>
+        </div>
+        <div className="mb-3">
+          <label className="block text-m font-semibold text-purple-600 mb-2">Password</label>
+          <div className="flex items-center border border-purple-300 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500">
 
-        <input
-          name="email"
-          placeholder="Email"
-          className="border p-2 w-full mb-3"
-          onChange={handleChange}
-        />
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              className="w-full outline-none bg-transparent"
+              onChange={handleChange}
+            />
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="border p-2 w-full mb-3"
-          onChange={handleChange}
-        />
+          </div>
+        </div>
+        <div className="mb-4">
+          <label className="block text-m font-semibold text-purple-600 mb-2">
+            Select Role
+          </label>
 
-        <select
-          name="role"
-          className="border p-2 w-full mb-4"
-          onChange={handleChange}
-          value={form.role}
-        >
-          <option value="NGO">NGO</option>
-          <option value="RESTAURANT">Restaurant</option>
-        </select>
+          <div className="relative">
+            <select
+              name="role"
+              value={form.role}
+              onChange={handleChange}
+              className="w-full appearance-none bg-white border border-purple-300 px-4 py-3 rounded-xl text-gray-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 cursor-pointer"
+            >
+              <option value="NGO">NGO</option>
+              <option value="RESTAURANT">Restaurant</option>
+            </select>
+            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-purple-500 pointer-events-none">
+              ▼
+            </span>
+          </div>
+        </div>
+
 
         <button
           type="submit"
           disabled={loading}
-          className="bg-blue-600 text-white w-full p-2 rounded"
+          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white  py-3 rounded-xl font-semibold transition transform hover:scale-[1.02]"
         >
           {loading ? "Registering..." : "Register"}
         </button>
@@ -97,11 +126,11 @@ const Register = () => {
           </p>
         )}
 
-        <p className="text-center text-sm mt-4">
+        <p className="text-center text-m mt-4">
           Already have an account?{" "}
           <span
             onClick={() => navigate("/")}
-            className="text-blue-600 cursor-pointer"
+            className="text-purple-600 cursor-pointer hover:underline"
           >
             Login
           </span>

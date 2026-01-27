@@ -61,81 +61,153 @@ const CompleteRegistration = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-indigo-100 to-pink-100 font-mono">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-6 rounded shadow w-full max-w-xl"
+        className="w-full max-w-md bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 transition hover:shadow-purple-200"
       >
-        <h2 className="text-2xl font-semibold mb-4 text-center">
+        <h2 className="text-3xl font-bold text-center text-purple-700 mb-2">
           Complete Registration
         </h2>
-
+        <p className="text-center text-xl text-gray-500 mb-6">
+          Register {role}
+        </p>
         {role === "NGO" && (
-          <input
-            name="organizationName"
-            placeholder="NGO Name"
-            className="border p-2 w-full mb-3"
-            onChange={handleChange}
+          <div className="mb-3">
+            <label className="block text-m font-semibold text-purple-600 mb-2">Organization Name</label>
+            <div className="flex items-center border border-purple-300 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500">
+              <input
+                name="organizationName"
+                placeholder="NGO Name"
+                className="w-full outline-none bg-transparent"
+                onChange={handleChange}
 
-          />
+              />
+            </div>
+          </div>
         )}
 
         {role === "RESTAURANT" && (
-          <input
-            name="restaurantName"
-            placeholder="Restaurant Name"
-            className="border p-2 w-full mb-3"
-            onChange={handleChange}
-          />
+
+          <div className="mb-3">
+            <label className="block text-m font-semibold text-purple-600 mb-2">Restuarant Name</label>
+            <div className="flex items-center border border-purple-300 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500">
+              <input
+                name="restaurantName"
+                placeholder="Restaurant Name"
+                className="w-full outline-none bg-transparent"
+                onChange={handleChange}
+
+              />
+            </div>
+          </div>
         )}
 
-        <input
-          name="address"
-          placeholder="Address"
-          className="border p-2 w-full mb-3"
-          onChange={handleChange}
+        <div className="mb-3">
+          <label className="block text-m font-semibold text-purple-600 mb-2">Address</label>
+          <div className="flex items-center border border-purple-300 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500">
+            <input
+              name="address"
+              placeholder="Address"
+              className="w-full outline-none bg-transparent"
+              onChange={handleChange}
+            />
+          </div>
+        </div>
 
-        />
-
-        <input
-          name="phone"
-          placeholder="Phone Number"
-          className="border p-2 w-full mb-4"
-          onChange={handleChange}
-
-        />
+        <div className="mb-3">
+          <label className="block text-m font-semibold text-purple-600 mb-2">Phone</label>
+          <div className="flex items-center border border-purple-300 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500">
+            <input
+              name="phone"
+              placeholder="Phone Number"
+              className="w-full outline-none bg-transparent"
+              onChange={handleChange}
+            />
+          </div>
+        </div>
 
         {/* NGO DOCUMENTS */}
         {role === "NGO" && (
           <>
-            <h3 className="font-semibold mb-2">NGO Documents</h3>
+            <h3 className="text-m font-semibold text-purple-700 mb-3">
+              NGO Documents
+            </h3>
 
-            <input type="file" name="registrationCertificate" onChange={handleFileChange} />
-            <input type="file" name="panCard" onChange={handleFileChange} />
-            <input type="file" name="addressProof" onChange={handleFileChange} />
-            <input type="file" name="bankProof" onChange={handleFileChange} />
-            <input type="file" name="authorizedPersonId" onChange={handleFileChange} />
+            <div className="max-h-50 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-400 scrollbar-track-purple-100">
+              {[
+                { label: "Registration Certificate", name: "registrationCertificate" },
+                { label: "PAN Card", name: "panCard" },
+                { label: "Address Proof", name: "addressProof" },
+                { label: "Bank Proof", name: "bankProof" },
+                { label: "Authorized Person ID", name: "authorizedPersonId" },
+              ].map((doc) => (
+                <div key={doc.name} className="mb-3">
+                  <label className="block text-sm font-semibold text-purple-600 mb-1">
+                    {doc.label}
+                  </label>
+
+                  <div className="border-2 border-dashed border-purple-300 rounded-xl p-3 hover:border-purple-500">
+                    <input
+                      type="file"
+                      name={doc.name}
+                      onChange={handleFileChange}
+                      className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4
+                         file:rounded-lg file:border-0
+                         file:bg-purple-100 file:text-purple-700
+                         hover:file:bg-purple-200 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </>
         )}
+
 
         {/* RESTAURANT DOCUMENTS */}
         {role === "RESTAURANT" && (
           <>
-            <h3 className="font-semibold mb-2">Restaurant Documents</h3>
+            <h3 className="font-semibold text-purple-700 mb-3">
+              Restaurant Documents
+            </h3>
 
-            <input type="file" name="fssaiLicense" onChange={handleFileChange} />
-            <input type="file" name="gstCertificate" onChange={handleFileChange} />
-            <input type="file" name="businessRegistration" onChange={handleFileChange} />
-            <input type="file" name="panCard" onChange={handleFileChange} />
-            <input type="file" name="addressProof" onChange={handleFileChange} />
-            <input type="file" name="ownerId" onChange={handleFileChange} />
+            <div className="max-h-64 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-purple-400 scrollbar-track-purple-100">
+              {[
+                { label: "FSSAI License", name: "fssaiLicense" },
+                { label: "GST Certificate", name: "gstCertificate" },
+                { label: "Business Registration", name: "businessRegistration" },
+                { label: "PAN Card", name: "panCard" },
+                { label: "Address Proof", name: "addressProof" },
+                { label: "Owner ID Proof", name: "ownerId" },
+              ].map((doc) => (
+                <div key={doc.name} className="mb-3">
+                  <label className="block text-sm font-semibold text-purple-600 mb-1">
+                    {doc.label}
+                  </label>
+
+                  <div className="border-2 border-dashed border-purple-300 rounded-xl p-3 hover:border-purple-500 transition">
+                    <input
+                      type="file"
+                      name={doc.name}
+                      onChange={handleFileChange}
+                      className="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4
+                         file:rounded-lg file:border-0
+                         file:bg-purple-100 file:text-purple-700
+                         hover:file:bg-purple-200 cursor-pointer"
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
           </>
         )}
+
 
         <button
           type="submit"
           disabled={loading}
-          className="bg-green-600 text-white w-full p-2 mt-4 rounded"
+          className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white  py-3 rounded-xl font-semibold transition transform hover:scale-[1.02]"
         >
           {loading ? "Submitting..." : "Submit Registration"}
         </button>

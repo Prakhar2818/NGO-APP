@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    restuarantName: {
+    restaurantName: {
       type: String,
       trim: true,
     },
