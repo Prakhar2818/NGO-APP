@@ -1,11 +1,11 @@
-import { removeToken } from "../../../../utils/token.js"
 import { useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
+import { removeToken } from "../../../../utils/token.js"
 
-const AdminDashboard = () => {
+const AdminDashboard: React.FC = () => {
   const navigate = useNavigate()
 
-  const handleLogout = () => {
+  const handleLogout = (): void => {
     removeToken()
     toast.success("Logged out successfully")
     setTimeout(() => {

@@ -1,27 +1,42 @@
-import { useState } from "react";
+import { useState, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../services/api.js";
 
-import { toast } from "react-toastify"
+import { toast } from "react-toastify";
 
-const Register = () => {
+type Role = "NGO" | "RESTAURANT";
+
+interface RegisterForm {
+  name: string;
+  email: string;
+  password: string;
+  role: Role;
+}
+
+interface RegisterResponse {
+  token: string;
+}
+
+const Register: React.FC = () => {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<RegisterForm>({
     name: "",
     email: "",
     password: "",
     role: "NGO",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [message, setMessage] = useState<string>("");
 
-  const handleChange = (e) => {
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
@@ -29,7 +44,7 @@ const Register = () => {
     try {
       const res = await api.post("/auth/register", form);
 
-      toast.success("Registration successful. Please login.")
+      toast.success("Registration successful. Please login.");
       setTimeout(() => {
         navigate("/");
       }, 500);
@@ -49,12 +64,12 @@ const Register = () => {
         <h2 className="text-4xl font-bold text-center text-purple-700 mb-2">
           Create Account
         </h2>
-        <p className="text-center text-xl text-gray-500 mb-6">
-          Register
-        </p>
+        <p className="text-center text-xl text-gray-500 mb-6">Register</p>
 
         <div className="mb-3">
-          <label className="block text-m font-semibold text-purple-600 mb-2" >Full Name</label>
+          <label className="block text-m font-semibold text-purple-600 mb-2">
+            Full Name
+          </label>
           <div className="flex items-center border border-purple-300 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500">
             <input
               type="text"
@@ -66,7 +81,9 @@ const Register = () => {
           </div>
         </div>
         <div className="mb-3">
-          <label className="block text-m font-semibold text-purple-600 mb-2">Email</label>
+          <label className="block text-m font-semibold text-purple-600 mb-2">
+            Email
+          </label>
           <div className="flex items-center border border-purple-300 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500">
             <input
               name="email"
@@ -77,9 +94,10 @@ const Register = () => {
           </div>
         </div>
         <div className="mb-3">
-          <label className="block text-m font-semibold text-purple-600 mb-2">Password</label>
+          <label className="block text-m font-semibold text-purple-600 mb-2">
+            Password
+          </label>
           <div className="flex items-center border border-purple-300 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500">
-
             <input
               type="password"
               name="password"
@@ -87,7 +105,6 @@ const Register = () => {
               className="w-full outline-none bg-transparent"
               onChange={handleChange}
             />
-
           </div>
         </div>
         <div className="mb-4">
@@ -111,7 +128,6 @@ const Register = () => {
           </div>
         </div>
 
-
         <button
           type="submit"
           disabled={loading}
@@ -121,9 +137,7 @@ const Register = () => {
         </button>
 
         {message && (
-          <p className="text-center mt-3 text-sm text-red-600">
-            {message}
-          </p>
+          <p className="text-center mt-3 text-sm text-red-600">{message}</p>
         )}
 
         <p className="text-center text-m mt-4">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../services/api.js";
 import {
@@ -10,21 +10,32 @@ import {
 } from "../../../utils/token.js";
 import { toast } from "react-toastify";
 
-const Login = () => {
+interface LoginForm {
+  email: string;
+  password: string;
+}
+
+interface LoginResponse {
+  token: string;
+  role: "ADMIN" | "NGO" | "RESTAURANT";
+  profileCompleted: boolean;
+}
+
+const Login: React.FC = () => {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<LoginForm>({
     email: "",
     password: "",
   });
 
-  const handleChange = (e) =>
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
-      const res = await api.post("/auth/login", form);
+      const res = await api.post<LoginResponse>("/auth/login", form);
 
       setToken(res.data.token);
       setRole(res.data.role);

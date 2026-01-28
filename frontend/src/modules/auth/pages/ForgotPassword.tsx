@@ -2,15 +2,15 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../services/api.js";
 
-import { toast } from "react-toastify"
+import { toast } from "react-toastify";
 
-const ForgotPassword = () => {
-  const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
+const ForgotPassword: React.FC = () => {
+  const [email, setEmail] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
       await api.post("/auth/forgot-password", { email });
@@ -28,7 +28,10 @@ const ForgotPassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 via-indigo-100 to-pink-100 font-mono">
-      <form onSubmit={handleSubmit} className="w-full max-w-md bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 transition hover:shadow-purple-200">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl p-8 transition hover:shadow-purple-200"
+      >
         <h2 className="text-4xl font-bold text-center text-purple-700 mb-5">
           Forgot Password
         </h2>

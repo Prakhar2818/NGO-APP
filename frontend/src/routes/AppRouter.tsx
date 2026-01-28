@@ -12,7 +12,7 @@ import RestaurantDashboard from "../modules/auth/pages/dashboard/RestaurantDashb
 import AdminDashboard from "../modules/auth/pages/dashboard/AdminDashboard"
 
 
-const AppRouter = () => {
+const AppRouter:React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
