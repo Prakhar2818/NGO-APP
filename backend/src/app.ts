@@ -1,11 +1,11 @@
 // App File
 
-import express from "express";
+import express, {Application} from "express";
 import cors from "cors";
 import authRoutes from "./modules/auth/routes/auth.routes.js";
 import profileRoutes from "./modules/auth/routes/profile.routes.js";
 
-const app = express();
+const app: Application = express();
 
 // Middlewares
 app.use(cors());

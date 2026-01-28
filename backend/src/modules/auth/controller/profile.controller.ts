@@ -1,16 +1,25 @@
+import { Request, Response } from "express";
 import User from "../models/user.model.js";
 import { uploadTosupabase } from "../../../utils/uploadToSupabase.js";
 
-export const completeProfile = async (req, res) => {
+interface MulterFiles {
+  [fieldname: string]: Express.Multer.File[];
+}
+
+export const completeProfile = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
-    const { userId, role } = req.user;
+    const { userId, role } = req.user!;
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({
+      res.status(404).json({
         success: false,
         message: "User not found",
       });
+      return;
     }
 
     // Update profile data
@@ -22,9 +31,9 @@ export const completeProfile = async (req, res) => {
     user.address = req.body.address;
     user.phone = req.body.phone;
 
-    const files = req.files;
+    const files = req.files as MulterFiles;
 
-    const uploadedDocs = {};
+    const uploadedDocs: Record<string, string> = {};
 
     if (role === "NGO") {
       const requiredDocs = [
@@ -37,10 +46,11 @@ export const completeProfile = async (req, res) => {
 
       for (const doc of requiredDocs) {
         if (!files[doc] || !files[doc][0]) {
-          return res.status(400).json({
+          res.status(400).json({
             success: false,
             message: `${doc} is required for NGO`,
           });
+          return;
         }
         uploadedDocs[doc] = await uploadTosupabase(
           files[doc][0],
@@ -48,15 +58,17 @@ export const completeProfile = async (req, res) => {
           userId,
         );
       }
-      user.documnets.ngo = uploadedDocs;
+      user.documents = user.documents || {};
+      user.documents.ngo = uploadedDocs;
     }
 
     if (role === "RESTAURANT") {
       if (!files.fssaiLicense || !files.fssaiLicense[0]) {
-        return res.status(400).json({
+        res.status(400).json({
           success: false,
           message: "FSSAI License is mandatory for restaurant",
         });
+        return;
       }
 
       const docFields = [
@@ -77,7 +89,8 @@ export const completeProfile = async (req, res) => {
           );
         }
       }
-      user.documnets.restaurant = uploadedDocs;
+      user.documents = user.documents || {};
+      user.documents.restaurant = uploadedDocs;
     }
 
     user.profileCompleted = true;

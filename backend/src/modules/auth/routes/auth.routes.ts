@@ -1,6 +1,7 @@
 // Auth Routes
 
-import express from "express";
+import { Router } from "express";
+
 import {
   register,
   login,
@@ -8,8 +9,10 @@ import {
   forgotPassword,
   resetPassword,
 } from "../controller/auth.controller.js";
+
 import { protect } from "../middleware/auth.middleware.js";
 import { validate } from "../middleware/validate.middleware.js";
+
 import {
   registerSchema,
   loginSchema,
@@ -17,7 +20,7 @@ import {
   resetPasswordSchema,
 } from "../validations/auth.validation.js";
 
-const router = express.Router();
+const router = Router();
 
 router.post("/register", validate(registerSchema), register);
 router.post("/login", validate(loginSchema), login);

@@ -1,20 +1,37 @@
 // Auth Middleware
-
+import { Request, Response, NextFunction } from "express";
+import { JwtPayload } from "jsonwebtoken";
 import { verifyToken } from "../../../utils/jwt.js";
 
-export const protect = (req, res, next) => {
+interface AuthUser {
+  userId: string;
+  role: string;
+}
+
+declare module "express-serve-static-core" {
+  interface Request {
+    user?: AuthUser;
+  }
+}
+
+export const protect = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
   try {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer")) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Unauthorized",
       });
+      return;
     }
 
     const token = authHeader.split(" ")[1];
-    const decoded = verifyToken(token);
+    const decoded = verifyToken(token) as JwtPayload & AuthUser;
 
     req.user = {
       userId: decoded.userId,

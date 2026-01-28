@@ -3,13 +3,17 @@
 import mongoose from "mongoose";
 import { env } from "./env.js";
 
-const connectDB = async () => {
+const connectDB = async (): Promise<void> => {
   try {
     await mongoose.connect(env.mongoUri);
     console.log("MongoDB connected successfully");
-  } catch (error) {
-    console.error("MongoDB connection failed");
-    console.error(error.message);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    } else {
+      console.error(error);
+    }
+
     process.exit(1);
   }
 };

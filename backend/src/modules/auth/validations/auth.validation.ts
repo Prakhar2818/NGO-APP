@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Request } from "express";
 
 const emailFormat = z
   .string()
@@ -32,9 +33,9 @@ export const resetPasswordSchema = z.object({
   newPassword: z.string().min(6, "Password must be at least 6 characters"),
 });
 
-export const completeRegistrationSchema = (req) => {
-  const role = req.user.role;
-  const baseSchema = {
+export const completeRegistrationSchema = (req: Request) => {
+  const role = req.user?.role;
+  const baseSchema: Record<string, z.ZodTypeAny> = {
     address: z.string().min(1, "Address Required"),
   };
 

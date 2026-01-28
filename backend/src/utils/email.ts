@@ -1,7 +1,17 @@
 import nodemailer from "nodemailer";
 import { env } from "../config/env.js";
 
-export const sendEmail = async ({ to, subject, text }) => {
+interface SendEmailParams {
+  to: string;
+  subject: string;
+  text: string;
+}
+
+export const sendEmail = async ({
+  to,
+  subject,
+  text,
+}: SendEmailParams): Promise<void> => {
   if (!to) {
     throw new Error("Recipient email (to) is missing");
   }

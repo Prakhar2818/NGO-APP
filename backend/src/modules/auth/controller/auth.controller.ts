@@ -1,22 +1,23 @@
 // Auth Controller
-
+import { Request, Response } from "express";
 import User from "../models/user.model.js";
 import { generateToken } from "../../../utils/jwt.js";
 import { generateOtp } from "../../../utils/otp.js";
 import { sendEmail } from "../../../utils/email.js";
 
 // Register
-export const register = async (req, res) => {
+export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { name, email, password, role } = req.body;
 
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "User already exists",
       });
+      return;
     }
 
     const user = await User.create({
@@ -36,33 +37,35 @@ export const register = async (req, res) => {
       message: "User registered successfully",
       token,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "Registration failed",
     });
   }
 };
 
 // Login
-export const login = async (req, res) => {
+export const login = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email }).select("+password");
     if (!user) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Invalid credentials",
       });
+      return;
     }
 
     const match = await user.comparePassword(password);
     if (!match) {
-      return res.status(401).json({
+      res.status(401).json({
         success: false,
         message: "Invalid credentials",
       });
+      return;
     }
 
     const token = generateToken({
@@ -77,18 +80,21 @@ export const login = async (req, res) => {
       role: user.role,
       profileCompleted: user.profileCompleted,
     });
-  } catch (error) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "Login failed",
     });
   }
 };
 
 // Refresh Token
-export const refreshToken = async (req, res) => {
+export const refreshToken = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
-    const { userId, role } = req.user;
+    const { userId, role } = req.user!;
 
     const newToken = generateToken({
       userId,
@@ -108,7 +114,10 @@ export const refreshToken = async (req, res) => {
 };
 
 //Forgot Password
-export const forgotPassword = async (req, res) => {
+export const forgotPassword = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { email } = req.body;
 
@@ -118,6 +127,7 @@ export const forgotPassword = async (req, res) => {
         succes: false,
         message: "User not found",
       });
+      return;
     }
 
     const otp = generateOtp();
@@ -154,39 +164,45 @@ NGO App
       success: true,
       message: "OTP sent to email",
     });
-  } catch (error) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "Failed to send otp",
     });
   }
 };
 
 // Reset Password
-export const resetPassword = async (req, res) => {
+export const resetPassword = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const { email, otp, newPassword } = req.body;
 
     const user = await User.findOne({ email });
     if (!user || !user.otp || !user.otpExpiry) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "Invalid request",
       });
+      return;
     }
 
     if (user.otp !== otp) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "Invalid OTP",
       });
+      return;
     }
 
     if (Date.now() > user.otpExpiry) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "OTP expired",
       });
+      return;
     }
 
     user.password = newPassword;
@@ -199,10 +215,10 @@ export const resetPassword = async (req, res) => {
       success: true,
       message: "Password reset successful",
     });
-  } catch (error) {
+  } catch (error: unknown) {
     res.status(500).json({
       success: false,
-      message: error.message,
+      message: error instanceof Error ? error.message : "Password reset failed",
     });
   }
 };
