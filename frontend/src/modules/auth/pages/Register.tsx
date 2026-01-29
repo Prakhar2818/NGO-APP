@@ -1,8 +1,9 @@
 import { useState, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../../services/api.js";
-
 import { toast } from "react-toastify";
+import * as yup from "yup";
+import api from "../../../services/api.js";
+import { registerSchema } from "../../../validations/auth.validation.js";
 
 type Role = "NGO" | "RESTAURANT";
 
@@ -42,14 +43,22 @@ const Register: React.FC = () => {
     setMessage("");
 
     try {
+      await registerSchema.validate(form, {
+        abortEarly: false,
+      });
+
       const res = await api.post("/auth/register", form);
 
       toast.success("Registration successful. Please login.");
       setTimeout(() => {
         navigate("/");
       }, 500);
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Registration failed");
+    } catch (err: any) {
+      if (err instanceof yup.ValidationError) {
+        toast.error(err.errors[0]);
+        return;
+      }
+      return;
     } finally {
       setLoading(false);
     }

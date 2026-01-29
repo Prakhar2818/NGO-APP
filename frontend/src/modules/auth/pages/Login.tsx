@@ -1,5 +1,8 @@
 import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import * as yup from "yup";
+
 import api from "../../../services/api.js";
 import {
   setToken,
@@ -8,7 +11,7 @@ import {
   getProfileCompleted,
   getRole,
 } from "../../../utils/token.js";
-import { toast } from "react-toastify";
+import { loginSchema } from "../../../validations/auth.validation.js";
 
 interface LoginForm {
   email: string;
@@ -35,6 +38,10 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
+      await loginSchema.validate(form, {
+        abortEarly: false,
+      });
+
       const res = await api.post<LoginResponse>("/auth/login", form);
 
       setToken(res.data.token);
@@ -54,7 +61,12 @@ const Login: React.FC = () => {
       if (role === "ADMIN") navigate("/admin");
       else if (role === "NGO") navigate("/ngo");
       else navigate("/restaurant");
-    } catch (err) {
+    } catch (err: any) {
+      if (err instanceof yup.ValidationError) {
+        toast.error(err.errors[0]);
+        return;
+      }
+
       toast.error(err.response?.data?.message || "Login failed");
     }
   };

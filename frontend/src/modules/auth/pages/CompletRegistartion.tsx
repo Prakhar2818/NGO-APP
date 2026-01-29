@@ -1,10 +1,10 @@
 import { useState, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../../services/api.js";
+import * as yup from "yup";
 import { toast } from "react-toastify";
+import api from "../../../services/api.js";
 import { getRole, setProfileCompleted } from "../../../utils/token.js";
-
-type Role = "NGO" | "RESTAURANT";
+import { completeRegistrationSchema } from "../../../validations/profile.validate.js";
 
 interface RegistrationForm {
   organizationName?: string;
@@ -34,13 +34,29 @@ const CompleteRegistration: React.FC = () => {
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFiles({ ...files, [e.target.name]: e.target.files[0] });
+    if (e.target.files && e.target.files[0]) {
+      setFiles({ ...files, [e.target.name]: e.target.files[0] });
+    }
   };
 
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
+      const validationData = {
+        organizationName: form.organizationName,
+        restaurantName: form.restaurantName,
+        address: form.address,
+        phone: form.phone,
+      };
+
+      await completeRegistrationSchema(role as "NGO" | "RESTAURANT").validate(
+        validationData,
+        {
+          abortEarly: false,
+        },
+      );
       const formData = new FormData();
+
       Object.keys(form).forEach((key) => {
         const value = form[key as keyof RegistrationForm];
         if (value) formData.append(key, value);
@@ -64,7 +80,11 @@ const CompleteRegistration: React.FC = () => {
         if (role === "NGO") navigate("/ngo");
         else if (role === "RESTAURANT") navigate("/restaurant");
       }, 1500);
-    } catch (error) {
+    } catch (error: any) {
+      if (error instanceof yup.ValidationError) {
+        toast.error(error.errors[0]);
+        return;
+      }
       toast.error(error?.response?.data?.message || "Registration failed");
     }
   };

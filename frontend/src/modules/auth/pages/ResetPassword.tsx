@@ -1,8 +1,9 @@
 import { useState, ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../../services/api.js";
-
 import { toast } from "react-toastify";
+import * as yup from "yup";
+import api from "../../../services/api.js";
+import { resetPasswordSchema } from "../../../validations/auth.validation.js";
 
 interface ResetForm {
   email: string;
@@ -27,14 +28,21 @@ const ResetPassword: React.FC = () => {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
+      await resetPasswordSchema.validate(form, {
+        abortEarly: false,
+      });
       const res = await api.post("/auth/reset-password", form);
       toast.success(res.data.message);
 
       setTimeout(() => {
         navigate("/");
       }, 1500);
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Reset failed");
+    } catch (err: any) {
+      if (err instanceof yup.ValidationError) {
+        toast.error(err.errors[0]);
+        return;
+      }
+      return;
     }
   };
 

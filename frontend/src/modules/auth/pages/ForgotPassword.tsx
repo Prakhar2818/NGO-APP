@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../../services/api.js";
-
 import { toast } from "react-toastify";
+import * as yup from "yup";
+
+import api from "../../../services/api.js";
+import { forgotPasswordSchema } from "../../../validations/auth.validation.js";
 
 const ForgotPassword: React.FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -13,6 +15,13 @@ const ForgotPassword: React.FC = () => {
   const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     try {
+      await forgotPasswordSchema.validate(
+        { email },
+        {
+          abortEarly: false,
+        },
+      );
+
       await api.post("/auth/forgot-password", { email });
       toast.success("OTP sent to the the mail");
 
@@ -21,8 +30,12 @@ const ForgotPassword: React.FC = () => {
           state: { email },
         });
       }, 1500);
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to send OTP");
+    } catch (err: any) {
+      if (err instanceof yup.ValidationError) {
+        toast.error(err.errors[0]);
+        return;
+      }
+      return;
     }
   };
 
@@ -43,6 +56,7 @@ const ForgotPassword: React.FC = () => {
         <div className="flex items-center border border-purple-300 rounded-xl px-4 py-2 focus-within:ring-2 focus-within:ring-purple-500 mb-5">
           <input
             type="email"
+            name="email"
             placeholder="Registered Email"
             className="w-full outline-none bg-transparent"
             value={email}
