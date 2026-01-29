@@ -1,51 +1,73 @@
-import { z } from "zod";
+import * as yup from "yup";
 import { Request } from "express";
 
-const emailFormat = z
+const emailFormat = yup
   .string()
   .min(2, "Email Required")
-  .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, "Invalid email format");
+  .email("Invalid email format");
 
-export const registerSchema = z.object({
-  name: z.string().min(2, "Name is required"),
+export const registerSchema = yup.object({
+  name: yup.string().min(2, "Name is required").required("Name is required"),
   email: emailFormat,
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  role: z
-    .enum(["NGO", "RESTAURANT", "ADMIN"])
-    .refine(
-      (val) => ["NGO", "RESTAURANT", "ADMIN"].includes(val),
-      "Invalid role selected",
-    ),
+  password: yup
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .required(),
+  role: yup
+    .mixed<"NGO" | "RESTAURANT" | "ADMIN">()
+    .oneOf(["NGO", "RESTAURANT", "ADMIN"], "Invalid role selected")
+    .required(),
 });
 
-export const loginSchema = z.object({
+export const loginSchema = yup.object({
   email: emailFormat,
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: yup
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .required(),
 });
 
-export const forgotPasswordSchema = z.object({
+export const forgotPasswordSchema = yup.object({
   email: emailFormat,
 });
 
-export const resetPasswordSchema = z.object({
+export const resetPasswordSchema = yup.object({
   email: emailFormat,
-  otp: z.string().min(6, "OTP required"),
-  newPassword: z.string().min(6, "Password must be at least 6 characters"),
+  otp: yup.string().min(6, "OTP required").required("OTP required"),
+  newPassword: yup
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .required(),
 });
 
 export const completeRegistrationSchema = (req: Request) => {
   const role = req.user?.role;
-  const baseSchema: Record<string, z.ZodTypeAny> = {
-    address: z.string().min(1, "Address Required"),
+  let baseSchema: Record<string, yup.AnySchema> = {
+    address: yup
+      .string()
+      .min(1, "Address Required")
+      .required("Address Required"),
   };
 
   if (role === "NGO") {
-    baseSchema.organizationName = z
-      .string()
-      .min(2, "Organization name required");
-  } else if (role === "RESTAURANT") {
-    baseSchema.restaurantName = z.string().min(2, "Restuarant name required");
+    baseSchema = {
+      ...baseSchema,
+      organizationName: yup
+        .string()
+        .min(2, "Organization name required")
+        .required("Organization name required"),
+    };
   }
 
-  return z.object(baseSchema);
+  if (role === "RESTAURANT") {
+    baseSchema = {
+      ...baseSchema,
+      restaurantName: yup
+        .string()
+        .min(2, "Restaurant name required")
+        .required("Restaurant name required"),
+    };
+  }
+
+  return yup.object(baseSchema);
 };

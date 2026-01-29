@@ -1,20 +1,25 @@
 import { Request, Response, NextFunction } from "express";
-import { ZodSchema, ZodError } from "zod";
+import { AnySchema, ValidationError } from "yup";
 
 export const validate =
-  (schema: ZodSchema | ((req: Request) => ZodSchema)) =>
-  (req: Request, res: Response, next: NextFunction): void => {
+  (schema: AnySchema | ((req: Request) => AnySchema)) =>
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const validationSchema =
         typeof schema === "function" ? schema(req) : schema;
 
-      validationSchema.parse(req.body);
+      await validationSchema.validate(req.body, {
+        abortEarly: false,
+        stripUnknown: true,
+      });
+
       next();
-    } catch (err) {
-      if (err instanceof ZodError) {
+    } catch (error) {
+      if (error instanceof ValidationError) {
         res.status(400).json({
           success: false,
-          message: err.issues[0].message,
+          message: error.errors[0],
+          errors: error.errors,
         });
         return;
       }
@@ -23,5 +28,5 @@ export const validate =
         success: false,
         message: "Validation failed",
       });
-    } 
+    }
   };
