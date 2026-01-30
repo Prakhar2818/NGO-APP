@@ -7,31 +7,39 @@ interface SendEmailParams {
   text: string;
 }
 
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: env.emailUser,
+    pass: env.emailPassword,
+  },
+
+  connectionTimeout: 10_000, // 10 sec
+  greetingTimeout: 10_000,
+  socketTimeout: 10_000,
+});
 export const sendEmail = async ({
   to,
   subject,
   text,
 }: SendEmailParams): Promise<void> => {
   if (!to) {
-    throw new Error("Recipient email (to) is missing");
+    console.warn("Email not sent: recipient missing");
+    return;
   }
 
-  const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: env.emailUser,
-      pass: env.emailPassword,
-    },
-  });
+  try {
+    await transporter.sendMail({
+      from: `"My App" <${env.emailUser}>`,
+      to,
+      subject,
+      text,
+    });
 
-  await transporter.sendMail({
-    from: env.emailUser,
-    to: to,
-    subject: subject,
-    text: text,
-  });
-
-  console.log("📧 Gmail OTP email sent successfully");
+    console.log("📧 Email sent successfully");
+  } catch (error) {
+    console.error("❌ Email send failed", error);
+  }
 };
