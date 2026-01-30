@@ -17,12 +17,12 @@ export const sendEmail = async ({
   }
 
   const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
+    host: "smtp-relay.brevo.com",
     port: 587,
-    secure: true,
+    secure: false,
     auth: {
-      user: env.emailUser,
-      pass: env.emailPassword,
+      user: env.brevoUser,
+      pass: env.brevoPass,
     },
     connectionTimeout: 10000,
     greetingTimeout: 10000,
