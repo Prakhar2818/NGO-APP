@@ -1,12 +1,21 @@
 import { Request, Response } from "express";
 import { Donation, DonationStatus } from "../models/donation.model.js";
 import mongoose from "mongoose";
+import { emitNewDonation } from "../../../socket.js";
 
 /* Restaurant: Create */
 export const createDonation = async (req: Request, res: Response) => {
   const donation = await Donation.create({
     ...req.body,
     restaurantId: req.user!.userId,
+  });
+
+  emitNewDonation({
+    id: donation._id,
+    foodName: donation.foodName,
+    quantity: donation.quantity,
+    expiryTime: donation.expiryTime,
+    foodType: donation.foodType,
   });
 
   res.status(201).json({ success: true, donation });

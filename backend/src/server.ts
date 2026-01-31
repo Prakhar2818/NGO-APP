@@ -1,6 +1,9 @@
 import app from "./app.js";
 import connectDB from "./config/db.js";
 import { env } from "./config/env.js";
+import { initSocket } from "./socket.js";
+
+import http from "http";
 
 const startServer = async (): Promise<void> => {
   try {
@@ -8,7 +11,10 @@ const startServer = async (): Promise<void> => {
 
     const port = Number(env.port);
 
-    app.listen(port, () => {
+    const server = http.createServer(app);
+    initSocket(server);
+
+    server.listen(port, () => {
       console.log(`Server is running on PORT ${env.port}`);
     });
   } catch (error) {
