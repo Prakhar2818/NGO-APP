@@ -14,10 +14,6 @@ interface RegisterForm {
   role: Role;
 }
 
-interface RegisterResponse {
-  token: string;
-}
-
 const Register: React.FC = () => {
   const navigate = useNavigate();
 

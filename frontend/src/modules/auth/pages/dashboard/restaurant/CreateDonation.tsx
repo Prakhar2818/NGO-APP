@@ -1,9 +1,19 @@
 import { useState } from "react";
 import api from "../../../../../services/api.js";
+import { createDonationSchema } from "../../../../../validations/createDonation.validation.js";
 import { toast } from "react-toastify";
+import * as yup from "yup";
+
+interface CreateDonationform {
+  foodName: string;
+  quantity: string;
+  expiryTime: string;
+  pickupAddress: string;
+  foodType: string;
+}
 
 const CreateDonation: React.FC = () => {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<CreateDonationform>({
     foodName: "",
     quantity: "",
     expiryTime: "",
@@ -12,10 +22,14 @@ const CreateDonation: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
+      await createDonationSchema.validate(form, {
+        abortEarly: false,
+      });
+
       await api.post("/donation/create-donation", {
         ...form,
         quantity: Number(form.quantity),
@@ -28,8 +42,12 @@ const CreateDonation: React.FC = () => {
         pickupAddress: "",
         foodType: "veg",
       });
-    } catch (error) {
-      toast.error("Failed to create donation");
+    } catch (err: any) {
+      if (err instanceof yup.ValidationError) {
+        toast.error(err.errors[0]);
+        return;
+      }
+      return;
     } finally {
       setIsSubmitting(false);
     }
@@ -60,7 +78,6 @@ const CreateDonation: React.FC = () => {
             value={form.foodName}
             onChange={(e) => handleChange("foodName", e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-            required
           />
         </div>
 
@@ -75,8 +92,6 @@ const CreateDonation: React.FC = () => {
             value={form.quantity}
             onChange={(e) => handleChange("quantity", e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-            required
-            min="1"
           />
         </div>
 
@@ -126,7 +141,6 @@ const CreateDonation: React.FC = () => {
             value={form.expiryTime}
             onChange={(e) => handleChange("expiryTime", e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all"
-            required
           />
         </div>
 
@@ -141,7 +155,6 @@ const CreateDonation: React.FC = () => {
             onChange={(e) => handleChange("pickupAddress", e.target.value)}
             className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all resize-none"
             rows={3}
-            required
           />
         </div>
       </div>

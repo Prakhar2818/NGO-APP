@@ -96,7 +96,7 @@ const ActiveDonations = ({ donations = [], onDonationUpdated }: { donations: Don
               quantity={d.quantity}
               ngoName={d.ngo?.organizationName}
               status={d.status}
-              tags={d.status === "PENDING" ? ["Pending Approval"] : ["Accepted"]}
+              tags={d.status === "PENDING" ? ["Pending"] : ["Accepted"]}
               showEditButton={d.status === "PENDING"}
               onEdit={() => startEditing(d)}
               showDeleteButton={d.status === "PENDING"}

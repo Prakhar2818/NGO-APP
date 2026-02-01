@@ -1,5 +1,10 @@
-import { Notification } from "../../types/notification.types.js";
-
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  restaurantName: string;
+  createdAt: string;
+}
 interface Props {
   notifications: Notification[];
 }

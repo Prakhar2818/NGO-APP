@@ -27,7 +27,6 @@ const NGODashboard: React.FC = () => {
   const [showPanel, setShowPanel] = useState(false);
   const navigate = useNavigate();
 
-  // 🔔 socket
   useEffect(() => {
     if (!socket.connected) socket.connect();
 
@@ -49,7 +48,6 @@ const NGODashboard: React.FC = () => {
     };
   }, []);
 
-  // 📊 stats
   useEffect(() => {
     api.get("/donation/ngo/history").then((res) => {
       const d = res.data.donations;

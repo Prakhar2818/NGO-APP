@@ -6,6 +6,6 @@ export const createDonationSchema = yup.object({
     quantity: yup.number().required().positive(),
     expiryTime: yup.date().required().min(new Date()),
     pickupAddress: yup.string().required(),
-    foodType: yup.string().optional(),
+    foodType: yup.string().required(),
   }),
 });
