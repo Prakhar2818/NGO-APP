@@ -7,10 +7,10 @@ import ResetPassword from "../modules/auth/pages/ResetPassword"
 import ProtectedRoutes from "./ProtectedRoutes"
 import CompleteRegistration from "../modules/auth/pages/CompletRegistartion"
 import ProfileGuard from "./ProfileGuard"
-import NGODashboard from "../modules/auth/pages/dashboard/NGODashboard"
-import RestaurantDashboard from "../modules/auth/pages/dashboard/RestaurantDashboard"
-import AdminDashboard from "../modules/auth/pages/dashboard/AdminDashboard"
 
+import NGODashboard from "../modules/auth/pages/dashboard/ngo/NGODashboard"
+import RestaurantDashboard from "../modules/auth/pages/dashboard/restaurant/RestaurantDashboard"
+import AdminDashboard from "../modules/auth/pages/dashboard/AdminDashboard"
 
 const AppRouter:React.FC = () => {
   return (
