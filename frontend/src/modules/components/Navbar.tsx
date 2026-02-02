@@ -151,9 +151,9 @@ const Navbar: React.FC<Props> = ({
 
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-50">
+          <div className="lg:hidden fixed inset-0 z-50 ">
             <div
-              className="absolute inset-0 bg-black bg-opacity-50"
+              className="absolute inset-0 bg-opacity-50"
               onClick={() => setIsMobileMenuOpen(false)}
             />
             <aside className="absolute left-0 top-0 h-full w-64 bg-white shadow-xl">

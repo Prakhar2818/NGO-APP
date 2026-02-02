@@ -47,7 +47,7 @@ const BrowseDonations: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
+    <div>
       {/* Filter Section */}
       <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-100 p-4">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
