@@ -126,7 +126,7 @@ const Navbar: React.FC<Props> = ({
                 onClick={onBellClick}
                 className="relative p-2 text-gray-500 hover:text-purple-700 hover:bg-purple-50 rounded-xl transition-colors"
               >
-                <Bell size={20} />
+                <Bell className="text-purple-600" size={20} />
                 {notificationCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full" />
                 )}

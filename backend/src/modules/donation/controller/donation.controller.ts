@@ -1,180 +1,245 @@
 import { Request, Response } from "express";
-import { Donation, DonationStatus } from "../models/donation.model.js";
 import mongoose from "mongoose";
+import { Donation, DonationStatus } from "../models/donation.model.js";
 import { emitNewDonation } from "../../../socket.js";
 
-/* Restaurant: Create */
+// Create Donations
 export const createDonation = async (req: Request, res: Response) => {
-  const donation = await Donation.create({
-    ...req.body,
-    restaurantId: req.user!.userId,
-  });
+  try {
+    const donation = await Donation.create({
+      ...req.body,
+      restaurantId: req.user!.userId,
+    });
 
-  emitNewDonation({
-    id: donation._id,
-    foodName: donation.foodName,
-    quantity: donation.quantity,
-    expiryTime: donation.expiryTime,
-    foodType: donation.foodType,
-  });
+    emitNewDonation({
+      id: donation._id,
+      foodName: donation.foodName,
+      quantity: donation.quantity,
+      expiryTime: donation.expiryTime,
+      foodType: donation.foodType,
+    });
 
-  res.status(201).json({ success: true, donation });
+    return res.status(201).json({
+      success: true,
+      donation,
+    });
+  } catch (error) {
+    console.error("Create Donation Error:", error);
+    return res.status(500).json({ success: false, message: "Server Error" });
+  }
 };
 
-/* Restaurant: Update */
+// Donation Update
 export const updateDonation = async (req: Request, res: Response) => {
-  Object.assign(req.donation!, req.body);
-  await req.donation!.save();
+  try {
+    if (!req.donation) {
+      return res.status(404).json({ message: "Donation not found" });
+    }
 
-  res.json({
-    success: true,
-    donation: req.donation,
-  });
+    Object.assign(req.donation, req.body);
+    await req.donation.save();
+
+    return res.json({
+      success: true,
+      donation: req.donation,
+    });
+  } catch (error) {
+    console.error("Update Donation Error:", error);
+    return res.status(500).json({ message: "Server Error" });
+  }
 };
 
-/* Restaurant: Delete */
+// Delete Donation
 export const deleteDonation = async (req: Request, res: Response) => {
-  await req.donation!.deleteOne();
-  res.json({ success: true, message: "Donation deleted" });
+  try {
+    if (!req.donation) {
+      return res.status(404).json({ message: "Donation not found" });
+    }
+
+    await req.donation.deleteOne();
+
+    return res.json({
+      success: true,
+      message: "Donation deleted",
+    });
+  } catch (error) {
+    console.error("Delete Donation Error:", error);
+    return res.status(500).json({ message: "Server Error" });
+  }
 };
 
-/* Restaurant Dashboard */
+// Restaurant dashboard
 export const restaurantDashboard = async (req: Request, res: Response) => {
-  const donations = await Donation.find({
-    restaurantId: req.user!.userId,
-  }).populate("ngoId", "name");
+  try {
+    const donations = await Donation.find({
+      restaurantId: req.user!.userId,
+    }).populate("ngoId", "name organizationName");
 
-  const mealsSaved = donations.reduce((sum, d) => sum + d.quantity * 2, 0);
+    const mealsSaved = donations.reduce((sum, d) => sum + d.quantity * 2, 0);
 
-  res.json({
-    success: true,
-    totalDonations: donations.length,
-    mealsSaved,
-    donations,
-  });
+    const formatted = donations.map((donation: any) => {
+      const ngo = donation.ngoId;
+      return {
+        ...donation.toObject(),
+        ngo: ngo
+          ? {
+              id: ngo._id,
+              organizationName: ngo.organizationName || ngo.name,
+            }
+          : null,
+      };
+    });
+
+    return res.json({
+      success: true,
+      totalDonations: donations.length,
+      mealsSaved,
+      donations: formatted,
+    });
+  } catch (error) {
+    console.error("Dashboard Error:", error);
+    return res.status(500).json({ message: "Server Error" });
+  }
 };
 
-/* NGO: Browse */
+// Browse donations
 export const browseDonations = async (req: Request, res: Response) => {
-  const { foodType, maxHours } = req.query;
+  try {
+    const { foodType, maxHours } = req.query;
 
-  const filter: any = {
-    status: DonationStatus.PENDING,
-  };
-
-  if (foodType) {
-    filter.foodType = foodType;
-  }
-
-  if (maxHours) {
-    const now = new Date();
-    const futureTime = new Date(
-      now.getTime() + Number(maxHours) * 60 * 60 * 1000,
-    );
-
-    filter.expiryTime = {
-      $gte: now,
-      $lte: futureTime,
+    const filter: any = {
+      status: DonationStatus.PENDING,
     };
+
+    if (foodType) filter.foodType = foodType;
+
+    if (maxHours) {
+      const now = new Date();
+      const future = new Date(
+        now.getTime() + Number(maxHours) * 60 * 60 * 1000,
+      );
+
+      filter.expiryTime = {
+        $gte: now,
+        $lte: future,
+      };
+    }
+
+    const donations = await Donation.find(filter)
+      .populate("restaurantId", "name restaurantName address")
+      .sort({ createdAt: -1 });
+
+    const formatted = donations.map((donation: any) => {
+      const r = donation.restaurantId;
+
+      return {
+        ...donation.toObject(),
+        restaurant: {
+          id: r._id,
+          name: r.restaurantName || r.name,
+          address: r.address,
+        },
+      };
+    });
+
+    return res.json({
+      success: true,
+      donations: formatted,
+    });
+  } catch (error) {
+    console.error("Browse Error:", error);
+    return res.status(500).json({ message: "Server Error" });
   }
-
-  const donations = await Donation.find(filter)
-    .populate("restaurantId", "name restaurantName address")
-    .sort({ createdAt: -1 });
-
-  const formattedDonations = donations.map((donation: any) => {
-    const restaurant = donation.restaurantId;
-
-    return {
-      ...donation.toObject(),
-      restaurant: {
-        id: restaurant._id,
-        name: restaurant.restaurantName || restaurant.name,
-        address: restaurant.address,
-      },
-    };
-  });
-
-  res.json({
-    success: true,
-    donations: formattedDonations,
-  });
 };
 
-/* NGO: Accept */
+// Accept donation
 export const acceptDonation = async (req: Request, res: Response) => {
-  const donation = await Donation.findById(req.params.id);
+  try {
+    const donation = await Donation.findById(req.params.id);
 
-  if (!donation || donation.status !== DonationStatus.PENDING) {
-    return res.status(400).json({ message: "Cannot accept donation" });
+    if (!donation || donation.status !== DonationStatus.PENDING) {
+      return res.status(400).json({
+        message: "Cannot accept donation",
+      });
+    }
+
+    donation.status = DonationStatus.ACCEPTED;
+    donation.ngoId = new mongoose.Types.ObjectId(req.user!.userId);
+    donation.acceptedAt = new Date();
+
+    await donation.save();
+
+    return res.json({ success: true, donation });
+  } catch (error) {
+    console.error("Accept Error:", error);
+    return res.status(500).json({ message: "Server Error" });
   }
-
-  donation.status = DonationStatus.ACCEPTED;
-  donation.ngoId = new mongoose.Types.ObjectId(req.user!.userId);
-  donation.acceptedAt = new Date();
-
-  await donation.save();
-
-  res.json({ success: true, donation });
 };
 
-// Pickup status
-
+// Mark pickup
 export const markPickedUp = async (req: Request, res: Response) => {
-  const donation = await Donation.findById(req.params.id);
+  try {
+    const donation = await Donation.findById(req.params.id);
 
-  if (!donation) {
-    return res.status(404).json({ message: "Donation not found" });
-  }
+    if (!donation) {
+      return res.status(404).json({ message: "Donation not found" });
+    }
 
-  if (donation.status !== DonationStatus.ACCEPTED) {
-    return res.status(400).json({
-      message: "Only accepted donations can be picked up",
+    if (donation.status !== DonationStatus.ACCEPTED) {
+      return res.status(400).json({
+        message: "Only accepted donations can be picked up",
+      });
+    }
+
+    if (donation.ngoId?.toString() !== req.user!.userId) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    donation.status = DonationStatus.PICKED_UP;
+    donation.pickedUpAt = new Date();
+
+    await donation.save();
+
+    return res.json({
+      success: true,
+      donation,
     });
+  } catch (error) {
+    console.error("Pickup Error:", error);
+    return res.status(500).json({ message: "Server Error" });
   }
-
-  // NGO ownership check (important)
-  if (donation.ngoId?.toString() !== req.user!.userId) {
-    return res.status(403).json({
-      message: "Not authorized to pick up this donation",
-    });
-  }
-
-  donation.status = DonationStatus.PICKED_UP;
-  donation.pickedUpAt = new Date();
-
-  await donation.save();
-
-  res.json({
-    success: true,
-    message: "Donation marked as picked up",
-    donation,
-  });
 };
 
-/* NGO History */
+// NGO history
 export const ngoHistory = async (req: Request, res: Response) => {
-  const donations = await Donation.find({
-    ngoId: req.user!.userId,
-  })
-    .populate("restaurantId", "name restaurantName address")
-    .sort({ acceptedAt: -1 });
+  try {
+    const donations = await Donation.find({
+      ngoId: req.user!.userId,
+    })
+      .populate("restaurantId", "name restaurantName address")
+      .sort({ acceptedAt: -1 });
 
-  const formattedDonations = donations.map((donation: any) => {
-    const restaurant = donation.restaurantId;
+    const formatted = donations.map((donation: any) => {
+      const r = donation.restaurantId;
 
-    return {
-      ...donation.toObject(),
-      restaurant: {
-        id: restaurant._id,
-        name: restaurant.restaurantName || restaurant.name,
-        address: restaurant.address,
-      },
-    };
-  });
+      return {
+        ...donation.toObject(),
+        restaurant: {
+          id: r._id,
+          name: r.restaurantName || r.name,
+          address: r.address,
+        },
+      };
+    });
 
-  res.json({
-    success: true,
-    donations: formattedDonations,
-  });
+    return res.json({
+      success: true,
+      donations: formatted,
+    });
+  } catch (error) {
+    console.error("History Error:", error);
+    return res.status(500).json({ message: "Server Error" });
+  }
 };

@@ -23,9 +23,16 @@ const NGODashboard: React.FC = () => {
     completed: 0,
   });
 
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<any[]>(() => {
+    const saved = localStorage.getItem("ngo-notifications");
+    return saved ? JSON.parse(saved) : [];
+  });
   const [showPanel, setShowPanel] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.setItem("ngo-notifications", JSON.stringify(notifications));
+  }, [notifications]);
 
   useEffect(() => {
     if (!socket.connected) socket.connect();
@@ -33,6 +40,7 @@ const NGODashboard: React.FC = () => {
     socket.on("new-donation", (donation) => {
       setNotifications((p) => [
         {
+          id: crypto.randomUUID?.() || Date.now().toString(),
           title: "New Donation",
           message: `${donation.foodName} (${donation.quantity})`,
           restaurantName: donation.restaurantName,
@@ -88,7 +96,14 @@ const NGODashboard: React.FC = () => {
         </button>
       }
     >
-      {showPanel && <NotificationPanel notifications={notifications} />}
+      {showPanel && (
+        <div className="absolute top-16 right-4 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+          <NotificationPanel 
+            notifications={notifications} 
+            onClose={() => setShowPanel(false)}
+          />
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto">
         {/* Page header */}

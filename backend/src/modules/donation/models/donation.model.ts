@@ -18,6 +18,8 @@ export interface IDonation extends Document {
   restaurantId: Types.ObjectId;
   ngoId?: Types.ObjectId;
 
+  organizationName?: string;
+
   acceptedAt?: Date;
   pickedUpAt?: Date;
 }
@@ -46,7 +48,10 @@ const DonationSchema = new Schema<IDonation>(
       type: Schema.Types.ObjectId,
       ref: "User",
     },
-
+    organizationName: {
+      type: String,
+      trim: true,
+    },
     acceptedAt: Date,
     pickedUpAt: Date,
   },
