@@ -15,6 +15,7 @@ interface DonationCardProps {
   onEdit?: () => void;
   showDeleteButton?: boolean;
   onDelete?: () => void;
+  expiryTime?: string;
 }
 
 const DonationCard: React.FC<DonationCardProps> = ({
@@ -32,7 +33,18 @@ const DonationCard: React.FC<DonationCardProps> = ({
   onEdit,
   showDeleteButton,
   onDelete,
+  expiryTime,
 }) => {
+  const formatExpiryTime = (time: string) => {
+    const date = new Date(time);
+    return date.toLocaleString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
       {/* Header with avatar and save button */}
@@ -45,9 +57,7 @@ const DonationCard: React.FC<DonationCardProps> = ({
             <h4 className="text-sm font-semibold text-gray-900 truncate">
               {restaurantName || ngoName || "Donation"}
             </h4>
-            <span className="text-xs text-gray-400">
-              {status || "Pending"}
-            </span>
+            <span className="text-xs text-gray-400">{status || "Pending"}</span>
           </div>
         </div>
         {status && <StatusBadge status={status} />}
@@ -55,10 +65,22 @@ const DonationCard: React.FC<DonationCardProps> = ({
 
       {/* Main content */}
       <div className="mb-3 sm:mb-4">
-        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2">{foodName}</h3>
+        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1 sm:mb-2">
+          {foodName}
+        </h3>
         <p className="text-gray-600 text-sm">
           Quantity: <span className="font-semibold">{quantity} meals</span>
         </p>
+        {expiryTime && (
+          <p className="text-gray-600 text-sm mt-1 flex items-center gap-1">
+            <span>
+              Expires:{" "}
+              <span className="font-semibold text-orange-600">
+                {formatExpiryTime(expiryTime)}
+              </span>
+            </span>
+          </p>
+        )}
       </div>
 
       {/* Tags */}
@@ -104,7 +126,9 @@ const DonationCard: React.FC<DonationCardProps> = ({
       {/* Footer with action buttons */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between pt-3 sm:pt-4 border-t border-gray-100 gap-3">
         {footerText && (
-          <p className="text-xs text-gray-400 order-2 sm:order-1">{footerText}</p>
+          <p className="text-xs text-gray-400 order-2 sm:order-1">
+            {footerText}
+          </p>
         )}
         <div className="flex gap-2 order-1 sm:order-2">
           {showEditButton && onEdit && (

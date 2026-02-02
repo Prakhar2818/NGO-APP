@@ -18,6 +18,7 @@ const DonationHistory = ({ donations = [] }: any) => (
           footerText={d.pickedUpAt
             ? `Picked up on: ${new Date(d.pickedUpAt).toLocaleDateString()}`
             : "Picked up"}
+          expiryTime={d.expiryTime}
         />
       ))
     )}

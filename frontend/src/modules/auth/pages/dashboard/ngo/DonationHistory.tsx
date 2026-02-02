@@ -30,6 +30,7 @@ const DonationHistory: React.FC = () => {
             status="PICKED_UP"
             tags={[d.status, "Completed"]}
             footerText={`Picked at: ${new Date(d.pickedUpAt).toLocaleString()}`}
+            expiryTime={d.expiryTime}
           />
         ))
       )}

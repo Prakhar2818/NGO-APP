@@ -8,6 +8,7 @@ interface Donation {
   foodName: string;
   quantity: number;
   foodType: string;
+  expiryTime: string;
   restaurant: {
     name: string;
     address: string;
@@ -117,6 +118,7 @@ const BrowseDonations: React.FC = () => {
               address={d.restaurant.address}
               actionLabel="Accept"
               onAction={() => acceptDonation(d._id)}
+              expiryTime={d.expiryTime}
             />
           ))
         )}

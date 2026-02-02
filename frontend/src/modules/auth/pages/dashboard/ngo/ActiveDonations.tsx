@@ -36,6 +36,7 @@ const ActiveDonations = () => {
             tags={["Accepted", "Ready for pickup"]}
             actionLabel="Mark Picked Up"
             onAction={() => markPicked(d._id)}
+            expiryTime={d.expiryTime}
           />
         ))
       )}

@@ -102,6 +102,7 @@ const ActiveDonations = ({ donations = [], onDonationUpdated }: { donations: Don
               showDeleteButton={d.status === "PENDING"}
               onDelete={() => deleteDonation(d._id)}
               footerText={d.ngo?.organizationName ? `Accepted by: ${d.ngo.organizationName}` : "Waiting for NGO to accept"}
+              expiryTime={d.expiryTime}
             />
           ))
         )}
