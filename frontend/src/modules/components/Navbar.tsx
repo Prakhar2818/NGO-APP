@@ -10,6 +10,9 @@ import {
   X,
 } from "lucide-react";
 import { ReactNode, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { removeToken } from "../../utils/token";
 
 interface Tab {
   key: string;
@@ -52,6 +55,13 @@ const Navbar: React.FC<Props> = ({
   userName,
 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    removeToken();
+    navigate("/");
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -191,6 +201,14 @@ const Navbar: React.FC<Props> = ({
                   );
                 })}
               </nav>
+              <div className="px-8">
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-medium transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
             </aside>
           </div>
         )}
