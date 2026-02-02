@@ -50,6 +50,7 @@ const CreateDonation: React.FC = () => {
       return;
     } finally {
       setIsSubmitting(false);
+      window.location.reload();
     }
   };
 
