@@ -23,7 +23,7 @@ const formatDate = (date: string) => {
 const NotificationPanel: React.FC<Props> = ({ notifications, onClose }) => {
   if (notifications.length === 0) {
     return (
-      <div className="p-4 text-gray-500 text-sm text-center">
+      <div className="p-4 text-gray-500 text-sm text-center font-mono">
         <p className="mb-2">No notifications</p>
         {onClose && (
           <button
@@ -38,7 +38,7 @@ const NotificationPanel: React.FC<Props> = ({ notifications, onClose }) => {
   }
 
   return (
-    <div className="max-h-80 overflow-y-auto">
+    <div className="max-h-80 overflow-y-auto font-mono">
       <div className="sticky top-0 bg-white border-b px-4 py-2 flex justify-between items-center">
         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
           Notifications

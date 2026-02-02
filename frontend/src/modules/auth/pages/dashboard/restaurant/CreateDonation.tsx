@@ -60,7 +60,7 @@ const CreateDonation: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-lg mt-6"
+      className="max-w-xl mx-auto bg-white p-8 rounded-2xl shadow-lg mt-6 font-mono"
     >
       <h2 className="text-2xl font-bold text-purple-700 mb-6">
         Create New Donation

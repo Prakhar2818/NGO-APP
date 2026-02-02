@@ -7,7 +7,7 @@ interface Props {
 }
 
 const MetricCard: React.FC<Props> = ({ label, value, icon, trend, trendUp }) => (
-  <div className="bg-white rounded-xl shadow p-3 sm:p-5 hover:shadow-md transition-shadow">
+  <div className="bg-white rounded-xl shadow p-3 sm:p-5 hover:shadow-md transition-shadow font-mono">
     <div className="flex items-start justify-between">
       <div className="min-w-0 flex-1">
         <p className="text-gray-500 text-xs sm:text-sm truncate">{label}</p>

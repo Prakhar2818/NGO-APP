@@ -64,7 +64,7 @@ const Navbar: React.FC<Props> = ({
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 font-mono">
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex w-64 bg-white border-r border-gray-200 flex-col">
         {/* Logo */}

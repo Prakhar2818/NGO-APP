@@ -49,7 +49,7 @@ const BrowseDonations: React.FC = () => {
   return (
     <div>
       {/* Filter Section */}
-      <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+      <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-100 p-4 font-mono">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           <span className="text-sm font-medium text-gray-700">Filter by Food Type:</span>
           <div className="flex flex-wrap gap-2">

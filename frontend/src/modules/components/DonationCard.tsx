@@ -46,7 +46,7 @@ const DonationCard: React.FC<DonationCardProps> = ({
     });
   };
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 hover:shadow-md transition-shadow duration-200 font-mono">
       {/* Header with avatar and save button */}
       <div className="flex justify-between items-start mb-3 sm:mb-4">
         <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">

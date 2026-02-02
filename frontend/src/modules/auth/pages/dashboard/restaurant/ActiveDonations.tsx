@@ -83,7 +83,7 @@ const ActiveDonations = ({ donations = [], onDonationUpdated }: { donations: Don
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-mono">
         {donations.length === 0 ? (
           <div className="col-span-full text-center py-8 text-gray-500">
             No active donations found.
@@ -110,7 +110,7 @@ const ActiveDonations = ({ donations = [], onDonationUpdated }: { donations: Don
 
       {/* Edit Modal */}
       {editingDonation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4 font-mono">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-4 sm:p-6">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Edit Donation</h2>
