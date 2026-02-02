@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../../../../../services/api";
 import DonationCard from "../../../../components/DonationCard";
+import NotFound from "../../../../../assets/not-found.png";
 
 interface Donation {
   _id: string;
@@ -15,7 +16,13 @@ interface Donation {
   };
 }
 
-const ActiveDonations = ({ donations = [], onDonationUpdated }: { donations: Donation[]; onDonationUpdated?: () => void }) => {
+const ActiveDonations = ({
+  donations = [],
+  onDonationUpdated,
+}: {
+  donations: Donation[];
+  onDonationUpdated?: () => void;
+}) => {
   const [editingDonation, setEditingDonation] = useState<Donation | null>(null);
   const [formData, setFormData] = useState({
     foodName: "",
@@ -45,7 +52,9 @@ const ActiveDonations = ({ donations = [], onDonationUpdated }: { donations: Don
       foodName: donation.foodName,
       quantity: donation.quantity.toString(),
       foodType: donation.foodType || "veg",
-      expiryTime: donation.expiryTime ? new Date(donation.expiryTime).toISOString().slice(0, 16) : "",
+      expiryTime: donation.expiryTime
+        ? new Date(donation.expiryTime).toISOString().slice(0, 16)
+        : "",
       pickupAddress: donation.pickupAddress || "",
     });
   };
@@ -83,27 +92,33 @@ const ActiveDonations = ({ donations = [], onDonationUpdated }: { donations: Don
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-mono">
+      <div>
         {donations.length === 0 ? (
-          <div className="col-span-full text-center py-8 text-gray-500">
-            No active donations found.
+          <div className="flex justify-center items-center md:h-120 h-150 w-full">
+            <img className="h-70" src={NotFound} alt="" />
           </div>
         ) : (
           donations.map((d: Donation) => (
-            <DonationCard
-              key={d._id}
-              foodName={d.foodName}
-              quantity={d.quantity}
-              ngoName={d.ngo?.organizationName}
-              status={d.status}
-              tags={d.status === "PENDING" ? ["Pending"] : ["Accepted"]}
-              showEditButton={d.status === "PENDING"}
-              onEdit={() => startEditing(d)}
-              showDeleteButton={d.status === "PENDING"}
-              onDelete={() => deleteDonation(d._id)}
-              footerText={d.ngo?.organizationName ? `Accepted by: ${d.ngo.organizationName}` : "Waiting for NGO to accept"}
-              expiryTime={d.expiryTime}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-mono">
+              <DonationCard
+                key={d._id}
+                foodName={d.foodName}
+                quantity={d.quantity}
+                ngoName={d.ngo?.organizationName}
+                status={d.status}
+                tags={d.status === "PENDING" ? ["Pending"] : ["Accepted"]}
+                showEditButton={d.status === "PENDING"}
+                onEdit={() => startEditing(d)}
+                showDeleteButton={d.status === "PENDING"}
+                onDelete={() => deleteDonation(d._id)}
+                footerText={
+                  d.ngo?.organizationName
+                    ? `Accepted by: ${d.ngo.organizationName}`
+                    : "Waiting for NGO to accept"
+                }
+                expiryTime={d.expiryTime}
+              />
+            </div>
           ))
         )}
       </div>
@@ -113,34 +128,51 @@ const ActiveDonations = ({ donations = [], onDonationUpdated }: { donations: Don
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4 font-mono">
           <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-4 sm:p-6">
-              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">Edit Donation</h2>
-              <form onSubmit={updateDonation} className="space-y-3 sm:space-y-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
+                Edit Donation
+              </h2>
+              <form
+                onSubmit={updateDonation}
+                className="space-y-3 sm:space-y-4"
+              >
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Food Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Food Name
+                  </label>
                   <input
                     type="text"
                     value={formData.foodName}
-                    onChange={(e) => setFormData({ ...formData, foodName: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, foodName: e.target.value })
+                    }
                     className="w-full border border-gray-300 rounded-lg p-2 text-sm sm:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Quantity (meals)</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Quantity (meals)
+                  </label>
                   <input
                     type="number"
                     value={formData.quantity}
-                    onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, quantity: e.target.value })
+                    }
                     className="w-full border border-gray-300 rounded-lg p-2 text-sm sm:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     required
                     min="1"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Food Type</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Food Type
+                  </label>
                   <select
                     value={formData.foodType}
-                    onChange={(e) => setFormData({ ...formData, foodType: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, foodType: e.target.value })
+                    }
                     className="w-full border border-gray-300 rounded-lg p-2 text-sm sm:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   >
                     <option value="veg">Vegetarian</option>
@@ -149,20 +181,31 @@ const ActiveDonations = ({ donations = [], onDonationUpdated }: { donations: Don
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Time</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Expiry Time
+                  </label>
                   <input
                     type="datetime-local"
                     value={formData.expiryTime}
-                    onChange={(e) => setFormData({ ...formData, expiryTime: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, expiryTime: e.target.value })
+                    }
                     className="w-full border border-gray-300 rounded-lg p-2 text-sm sm:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Pickup Address</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Pickup Address
+                  </label>
                   <textarea
                     value={formData.pickupAddress}
-                    onChange={(e) => setFormData({ ...formData, pickupAddress: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        pickupAddress: e.target.value,
+                      })
+                    }
                     className="w-full border border-gray-300 rounded-lg p-2 text-sm sm:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
                     rows={2}
                     required

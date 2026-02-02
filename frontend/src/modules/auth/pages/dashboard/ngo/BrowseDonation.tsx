@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import api from "../../../../../services/api";
 import DonationCard from "../../../../components/DonationCard";
+import NotFound from "../../../../../assets/not-found.png";
+
 import { toast } from "react-toastify";
 
 interface Donation {
@@ -34,7 +36,7 @@ const BrowseDonations: React.FC = () => {
       setFilteredDonations(donations);
     } else {
       setFilteredDonations(
-        donations.filter((d) => d.foodType === foodTypeFilter)
+        donations.filter((d) => d.foodType === foodTypeFilter),
       );
     }
   }, [foodTypeFilter, donations]);
@@ -51,7 +53,9 @@ const BrowseDonations: React.FC = () => {
       {/* Filter Section */}
       <div className="mb-6 bg-white rounded-xl shadow-sm border border-gray-100 p-4 font-mono">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-          <span className="text-sm font-medium text-gray-700">Filter by Food Type:</span>
+          <span className="text-sm font-medium text-gray-700">
+            Filter by Food Type:
+          </span>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setFoodTypeFilter("all")}
@@ -99,27 +103,30 @@ const BrowseDonations: React.FC = () => {
 
       {/* Results Count */}
       <div className="mb-4 text-sm text-gray-600">
-        Showing {filteredDonations.length} donation{filteredDonations.length !== 1 ? "s" : ""}
+        Showing {filteredDonations.length} donation
+        {filteredDonations.length !== 1 ? "s" : ""}
       </div>
 
       {/* Donations Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="">
         {filteredDonations.length === 0 ? (
-          <div className="col-span-full text-center py-8 text-gray-500">
-            No donations found for the selected filter.
+          <div className="flex justify-center items-center md:h-120 h-150 w-full">
+            <img className="h-70" src={NotFound} alt="" />
           </div>
         ) : (
           filteredDonations.map((d) => (
-            <DonationCard
-              key={d._id}
-              foodName={d.foodName}
-              quantity={d.quantity}
-              restaurantName={d.restaurant.name}
-              address={d.restaurant.address}
-              actionLabel="Accept"
-              onAction={() => acceptDonation(d._id)}
-              expiryTime={d.expiryTime}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <DonationCard
+                key={d._id}
+                foodName={d.foodName}
+                quantity={d.quantity}
+                restaurantName={d.restaurant.name}
+                address={d.restaurant.address}
+                actionLabel="Accept"
+                onAction={() => acceptDonation(d._id)}
+                expiryTime={d.expiryTime}
+              />
+            </div>
           ))
         )}
       </div>
