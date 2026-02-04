@@ -7,11 +7,16 @@ import { validate } from "../middleware/validate.middleware.js";
 import { completeProfile } from "../controller/profile.controller.js";
 import { completeRegistrationSchema } from "../validations/auth.validation.js";
 
+import { uploadRateLimiter } from "../middleware/uploadLimiter.middleware.js";
+import { concurrencyUploadLimiter } from "../middleware/concurrencyLimiter.middleware.js";
+
 const router = Router();
 
 router.post(
   "/complete-registration",
   protect,
+  uploadRateLimiter,
+  concurrencyUploadLimiter,
   upload.fields([
     { name: "registrationCertificate" },
     { name: "panCard" },

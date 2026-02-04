@@ -16,7 +16,10 @@ import {
   markPickedUp,
 } from "../controller/donation.controller.js";
 
+import { userLimiter } from "../../../middleware/userLimiter.middleware.js";
+
 const router = Router();
+router.use(userLimiter);
 
 // Restaurant
 router.post(

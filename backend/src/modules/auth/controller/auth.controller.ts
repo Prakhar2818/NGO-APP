@@ -5,6 +5,11 @@ import { generateToken } from "../../../utils/jwt.js";
 import { generateOtp } from "../../../utils/otp.js";
 import { sendEmail } from "../../../utils/email.js";
 
+import {
+  recordFailure,
+  recordSuccess,
+} from "../middleware/loginLock.middleware.js";
+
 // Register
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -61,6 +66,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const match = await user.comparePassword(password);
     if (!match) {
+      recordFailure(email);
       res.status(401).json({
         success: false,
         message: "Invalid credentials",
@@ -79,6 +85,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       token,
       role: user.role,
       profileCompleted: user.profileCompleted,
+      recordSuccess,
     });
   } catch (error: unknown) {
     res.status(500).json({

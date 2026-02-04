@@ -20,12 +20,34 @@ import {
   resetPasswordSchema,
 } from "../validations/auth.validation.js";
 
+import {
+  authRateLimiter,
+  forgotLimiter,
+} from "../middleware/authLImiter.middleware.js";
+import { loginLockCheck } from "../middleware/loginLock.middleware.js";
+
 const router = Router();
 
-router.post("/register", validate(registerSchema), register);
-router.post("/login", validate(loginSchema), login);
+router.post("/register", authRateLimiter, validate(registerSchema), register);
+router.post(
+  "/login",
+  loginLockCheck,
+  authRateLimiter,
+  validate(loginSchema),
+  login,
+);
 router.post("/refresh-token", protect, refreshToken);
-router.post("/forgot-password", validate(forgotPasswordSchema), forgotPassword);
-router.post("/reset-password", validate(resetPasswordSchema), resetPassword);
+router.post(
+  "/forgot-password",
+  forgotLimiter,
+  validate(forgotPasswordSchema),
+  forgotPassword,
+);
+router.post(
+  "/reset-password",
+  authRateLimiter,
+  validate(resetPasswordSchema),
+  resetPassword,
+);
 
 export default router;
