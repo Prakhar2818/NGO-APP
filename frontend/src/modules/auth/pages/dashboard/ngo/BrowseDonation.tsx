@@ -5,6 +5,7 @@ import DonorMap from "../../../../components/DonorMap";
 import NotFound from "../../../../../assets/not-found.png";
 
 import { toast } from "react-toastify";
+import Loader from "../../../../components/Loader";
 
 interface Donation {
   _id: string;
@@ -29,18 +30,27 @@ const BrowseDonations: React.FC = () => {
   const [foodTypeFilter, setFoodTypeFilter] = useState<FoodTypeFilter>("all");
   const [ngoPos, setNgoPos] = useState<[number, number] | null>(null);
   const [distanceById, setDistanceById] = useState<Record<string, number>>({});
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
 
-      setNgoPos([lat, lng]);
+        setNgoPos([lat, lng]);
 
-      api
-        .get(`/donation/browse?lat=${lat}&lng=${lng}`)
-        .then((res) => setDonations(res.data.donations));
-    });
+        api
+          .get(`/donation/browse?lat=${lat}&lng=${lng}`)
+          .then((res) => setDonations(res.data.donations))
+          .catch(() => toast.error("Failed to load donations"))
+          .finally(() => setIsLoading(false));
+      },
+      () => {
+        toast.error("Location permission is required");
+        setIsLoading(false);
+      },
+    );
   }, []);
 
   useEffect(() => {
@@ -94,6 +104,10 @@ const BrowseDonations: React.FC = () => {
 
     fetchDistances();
   }, [donations, ngoPos]);
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   if (!ngoPos) return <p>Loading location...</p>;
 
