@@ -16,11 +16,12 @@ import {
   markPickedUp,
 } from "../controller/donation.controller.js";
 
+import { getRoute } from "../controller/route.controller.js";
+
 import { userLimiter } from "../../../middleware/userLimiter.middleware.js";
 
 const router = Router();
 router.use(userLimiter);
-
 // Restaurant
 router.post(
   "/create-donation",
@@ -57,5 +58,7 @@ router.get("/browse", protect, roleMiddleware("NGO"), browseDonations);
 router.post("/:id/accept", protect, roleMiddleware("NGO"), acceptDonation);
 router.patch("/:id/pickup", protect, roleMiddleware("NGO"), markPickedUp);
 router.get("/ngo/history", protect, roleMiddleware("NGO"), ngoHistory);
+
+router.get("/route", protect, roleMiddleware("NGO"), getRoute);
 
 export default router;

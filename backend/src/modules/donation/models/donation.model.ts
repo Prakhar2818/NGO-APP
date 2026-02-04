@@ -15,6 +15,13 @@ export interface IDonation extends Document {
 
   status: DonationStatus;
 
+  location: {
+    type: "Point";
+    coordinates: [number, number];
+  };
+
+  distance?: number;
+
   restaurantId: Types.ObjectId;
   ngoId?: Types.ObjectId;
 
@@ -38,6 +45,18 @@ const DonationSchema = new Schema<IDonation>(
       default: DonationStatus.PENDING,
     },
 
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
+    },
+
     restaurantId: {
       type: Schema.Types.ObjectId,
       ref: "User",
@@ -58,4 +77,5 @@ const DonationSchema = new Schema<IDonation>(
   { timestamps: true },
 );
 
+DonationSchema.index({ location: "2dsphere" });
 export const Donation = model<IDonation>("Donation", DonationSchema);

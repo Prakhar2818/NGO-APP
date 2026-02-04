@@ -5,6 +5,7 @@ interface DonationCardProps {
   quantity: number;
   restaurantName?: string;
   address?: string;
+  distanceKm?: number;
   status?: "PENDING" | "ACCEPTED" | "PICKED_UP";
   actionLabel?: string;
   onAction?: () => void;
@@ -23,6 +24,7 @@ const DonationCard: React.FC<DonationCardProps> = ({
   quantity,
   restaurantName,
   address,
+  distanceKm,
   status,
   actionLabel,
   onAction,
@@ -71,6 +73,14 @@ const DonationCard: React.FC<DonationCardProps> = ({
         <p className="text-gray-600 text-sm">
           Quantity: <span className="font-semibold">{quantity} meals</span>
         </p>
+        {typeof distanceKm === "number" && (
+          <p className="text-gray-600 text-sm mt-1">
+            Distance:{" "}
+            <span className="font-semibold">
+              {distanceKm.toFixed(2)} km
+            </span>
+          </p>
+        )}
         {expiryTime && (
           <p className="text-gray-600 text-sm mt-1 flex items-center gap-1">
             <span>

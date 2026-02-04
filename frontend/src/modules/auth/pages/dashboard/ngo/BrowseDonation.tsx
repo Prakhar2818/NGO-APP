@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../../../../services/api";
 import DonationCard from "../../../../components/DonationCard";
+import DonorMap from "../../../../components/DonorMap";
 import NotFound from "../../../../../assets/not-found.png";
 
 import { toast } from "react-toastify";
@@ -11,6 +12,9 @@ interface Donation {
   quantity: number;
   foodType: string;
   expiryTime: string;
+  location?: {
+    coordinates: [number, number];
+  };
   restaurant: {
     name: string;
     address: string;
@@ -23,11 +27,19 @@ const BrowseDonations: React.FC = () => {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [filteredDonations, setFilteredDonations] = useState<Donation[]>([]);
   const [foodTypeFilter, setFoodTypeFilter] = useState<FoodTypeFilter>("all");
+  const [ngoPos, setNgoPos] = useState<[number, number] | null>(null);
+  const [distanceById, setDistanceById] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    api.get("/donation/browse").then((res) => {
-      setDonations(res.data.donations);
-      setFilteredDonations(res.data.donations);
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+
+      setNgoPos([lat, lng]);
+
+      api
+        .get(`/donation/browse?lat=${lat}&lng=${lng}`)
+        .then((res) => setDonations(res.data.donations));
     });
   }, []);
 
@@ -40,6 +52,50 @@ const BrowseDonations: React.FC = () => {
       );
     }
   }, [foodTypeFilter, donations]);
+
+  useEffect(() => {
+    if (!ngoPos || donations.length === 0) {
+      setDistanceById({});
+      return;
+    }
+
+    const fetchDistances = async () => {
+      try {
+        const results = await Promise.all(
+          donations.map(async (d) => {
+            const coords = d.location?.coordinates;
+            if (!coords || coords.length !== 2) return null;
+            const [lng, lat] = coords;
+
+            const res = await api.get("/donation/route", {
+              params: {
+                fromLat: ngoPos[0],
+                fromLng: ngoPos[1],
+                toLat: lat,
+                toLng: lng,
+              },
+            });
+
+            const distance = res?.data?.distance;
+            if (typeof distance !== "number") return null;
+            return { id: d._id, distance };
+          }),
+        );
+
+        const next: Record<string, number> = {};
+        results.forEach((r) => {
+          if (r) next[r.id] = r.distance;
+        });
+        setDistanceById(next);
+      } catch {
+        setDistanceById({});
+      }
+    };
+
+    fetchDistances();
+  }, [donations, ngoPos]);
+
+  if (!ngoPos) return <p>Loading location...</p>;
 
   const acceptDonation = async (id: string) => {
     await api.post(`/donation/${id}/accept`);
@@ -122,6 +178,7 @@ const BrowseDonations: React.FC = () => {
                 quantity={d.quantity}
                 restaurantName={d.restaurant.name}
                 address={d.restaurant.address}
+                distanceKm={distanceById[d._id]}
                 actionLabel="Accept"
                 onAction={() => acceptDonation(d._id)}
                 expiryTime={d.expiryTime}
@@ -129,6 +186,11 @@ const BrowseDonations: React.FC = () => {
             </div>
           ))
         )}
+        <DonorMap
+          donations={donations}
+          ngoPos={ngoPos}
+          distanceById={distanceById}
+        />
       </div>
     </div>
   );

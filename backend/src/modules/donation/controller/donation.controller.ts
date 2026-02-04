@@ -6,9 +6,15 @@ import { emitNewDonation } from "../../../socket.js";
 // Create Donations
 export const createDonation = async (req: Request, res: Response) => {
   try {
+    const { lat, lng, ...rest } = req.body;
     const donation = await Donation.create({
-      ...req.body,
+      ...rest,
       restaurantId: req.user!.userId,
+
+      location: {
+        type: "Point",
+        coordinates: [lng, lat],
+      },
     });
 
     emitNewDonation({
@@ -105,46 +111,58 @@ export const restaurantDashboard = async (req: Request, res: Response) => {
 // Browse donations
 export const browseDonations = async (req: Request, res: Response) => {
   try {
-    const { foodType, maxHours } = req.query;
+    const { lat, lng, foodType, maxHours } = req.query;
 
-    const filter: any = {
+    if (!lat || !lng) {
+      return res.status(400).json({ message: "lat/lng required" });
+    }
+
+    const now = new Date();
+
+    const match: any = {
       status: DonationStatus.PENDING,
     };
 
-    if (foodType) filter.foodType = foodType;
+    if (foodType) match.foodType = foodType;
 
     if (maxHours) {
-      const now = new Date();
       const future = new Date(
         now.getTime() + Number(maxHours) * 60 * 60 * 1000,
       );
 
-      filter.expiryTime = {
+      match.expiryTime = {
         $gte: now,
         $lte: future,
       };
     }
 
-    const donations = await Donation.find(filter)
-      .populate("restaurantId", "name restaurantName address")
-      .sort({ createdAt: -1 });
-
-    const formatted = donations.map((donation: any) => {
-      const r = donation.restaurantId;
-
-      return {
-        ...donation.toObject(),
-        restaurant: {
-          id: r._id,
-          name: r.restaurantName || r.name,
-          address: r.address,
+    // Geo Query
+    const donations = await Donation.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: "Point",
+            coordinates: [Number(lng), Number(lat)],
+          },
+          distanceField: "distance",
+          spherical: true,
         },
-      };
-    });
+      },
+      { $match: match },
+      {
+        $lookup: {
+          from: "users",
+          localField: "restaurantId",
+          foreignField: "_id",
+          as: "restaurant",
+        },
+      },
+      { $unwind: "$restaurant" },
+    ]);
 
     return res.json({
       success: true,
-      donations: formatted,
+      donations,
     });
   } catch (error) {
     console.error("Browse Error:", error);

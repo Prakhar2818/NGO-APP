@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../../../../../services/api.js";
 import { createDonationSchema } from "../../../../../validations/createDonation.validation.js";
+import MapPicker from "../../../../components/MapPicker.js";
 import { toast } from "react-toastify";
 import * as yup from "yup";
 
@@ -10,6 +11,8 @@ interface CreateDonationform {
   expiryTime: string;
   pickupAddress: string;
   foodType: string;
+  lat?: number;
+  lng?: number;
 }
 
 const CreateDonation: React.FC = () => {
@@ -30,6 +33,10 @@ const CreateDonation: React.FC = () => {
         abortEarly: false,
       });
 
+      if (!form.lat || !form.lng) {
+        toast.error("Please select location on map");
+        return;
+      }
       await api.post("/donation/create-donation", {
         ...form,
         quantity: Number(form.quantity),
@@ -158,6 +165,15 @@ const CreateDonation: React.FC = () => {
             rows={3}
           />
         </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Select Pickup Location
+        </label>
+        <MapPicker
+          onSelect={(lat, lng) => setForm((p) => ({ ...p, lat, lng }))}
+        />
       </div>
 
       <button
