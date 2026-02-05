@@ -18,6 +18,7 @@ app.use(
   }),
 );
 app.use(express.json());
+app.set("trust proxy", 1);
 app.use(globalRateLimiter);
 
 app.use("/api/auth", authRoutes);
