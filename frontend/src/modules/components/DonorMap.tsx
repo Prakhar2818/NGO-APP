@@ -50,28 +50,19 @@ const DonorMap: React.FC<Props> = ({
       return curDist < bestDist ? current : closest;
     });
 
-    const nearestPos: [number, number] = [
-      nearest.location.coordinates[1],
-      nearest.location.coordinates[0],
-    ];
-
+    const [lng, lat] = nearest.location.coordinates;
     api
       .get("/donation/route", {
         params: {
           fromLat: ngoPos[0],
           fromLng: ngoPos[1],
-          toLat: nearestPos[0],
-          toLng: nearestPos[1],
+          toLat: lat,
+          toLng: lng,
         },
       })
-      .then((res) => {
-        const geometry = res?.data?.geometry;
-        if (Array.isArray(geometry) && geometry.length > 0) {
-          setRoute(geometry.map((g: any) => [g[1], g[0]]));
-          return;
-        }
-        setRoute([]);
-      })
+      .then(({ data }) =>
+        setRoute(data?.geometry?.map((g: any) => [g[1], g[0]]) || []),
+      )
       .catch(() => {
         setRoute([]);
       });

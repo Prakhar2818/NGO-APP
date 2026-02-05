@@ -77,7 +77,7 @@ const BrowseDonations: React.FC = () => {
             if (!coords || coords.length !== 2) return null;
             const [lng, lat] = coords;
 
-            const res = await api.get("/donation/route", {
+            const { data } = await api.get("/donation/route", {
               params: {
                 fromLat: ngoPos[0],
                 fromLng: ngoPos[1],
@@ -86,17 +86,14 @@ const BrowseDonations: React.FC = () => {
               },
             });
 
-            const distance = res?.data?.distance;
-            if (typeof distance !== "number") return null;
-            return { id: d._id, distance };
+            return { id: d._id, distance: data?.distance };
           }),
         );
 
-        const next: Record<string, number> = {};
-        results.forEach((r) => {
-          if (r) next[r.id] = r.distance;
-        });
-        setDistanceById(next);
+        const distanceMap = Object.fromEntries(
+          results.filter(Boolean).map((r) => [r!.id, r!.distance]),
+        );
+        setDistanceById(distanceMap);
       } catch {
         setDistanceById({});
       }
