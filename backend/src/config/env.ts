@@ -14,6 +14,6 @@ export const env = {
   supabasePublicUrl: process.env.VITE_SUPABASE_URL as string,
   supabaseServiceKey: process.env.VITE_SUPABASE_SERVICE_ROLE_KEY as string,
   supabaseBucket: process.env.VITE_SUPABASE_BUCKET as string,
-  brevoUser: process.env.BREVO_SMTP_USER as string,
-  brevoPass: process.env.BREVO_SMTP_PASS as string
+  brevoApiKey: process.env.BREVO_API_KEY as string,
+  emailName: process.env.EMAIL_NAME as string,
 };
