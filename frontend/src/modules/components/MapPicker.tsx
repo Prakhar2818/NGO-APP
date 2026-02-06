@@ -1,6 +1,14 @@
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import { useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+  useMap,
+} from "react-leaflet";
+import { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
+
+import RecenterMap from "./RecenterMap";
 
 interface Props {
   onSelect: (lat: number, lng: number) => void;
@@ -8,6 +16,21 @@ interface Props {
 
 const MapPicker: React.FC<Props> = ({ onSelect }) => {
   const [pos, setPos] = useState<[number, number] | null>(null);
+
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        setPos([lat, lng]);
+        onSelect(lat, lng);
+      },
+      () => {
+        setPos([21.15, 79.08]);
+      },
+    );
+  }, []);
 
   const MapClick = () => {
     useMapEvents({
@@ -20,8 +43,9 @@ const MapPicker: React.FC<Props> = ({ onSelect }) => {
   };
 
   return (
-    <MapContainer center={[28.61, 77.2]} zoom={13} style={{ height: 300 }}>
+    <MapContainer center={[21.15, 79.08]} zoom={13} style={{ height: 300 }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+      {pos && <RecenterMap position={pos} />}
       <MapClick />
       {pos && <Marker position={pos} />}
     </MapContainer>
