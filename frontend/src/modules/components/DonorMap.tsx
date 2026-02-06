@@ -77,25 +77,12 @@ const DonorMap: React.FC<Props> = ({
     setNgoName(name);
   }, [donations]);
 
-  const ngoIcon = L.divIcon({
-    className: "",
-    html: '<div style="background:#2563eb;width:14px;height:14px;border-radius:50%;border:2px solid #ffffff;box-shadow:0 0 2px rgba(0,0,0,0.6)"></div>',
-    iconSize: [14, 14],
-    iconAnchor: [7, 7],
-  });
-
-  const restaurantIcon = L.divIcon({
-    className: "",
-    html: '<div style="background:#dc2626;width:14px;height:14px;border-radius:50%;border:2px solid #ffffff;box-shadow:0 0 2px rgba(0,0,0,0.6)"></div>',
-    iconSize: [14, 14],
-    iconAnchor: [7, 7],
-  });
 
   return (
     <MapContainer center={ngoPos} zoom={13} style={{ height: 500 }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-      <Marker position={ngoPos} icon={ngoIcon}>
+      <Marker position={ngoPos}>
         <Tooltip direction="top" offset={[0, -8]} opacity={1} permanent>
           NGO: {ngoName}
         </Tooltip>
@@ -106,7 +93,6 @@ const DonorMap: React.FC<Props> = ({
         <Marker
           key={d._id}
           position={[d.location.coordinates[1], d.location.coordinates[0]]}
-          icon={restaurantIcon}
         >
           <Tooltip direction="top" offset={[0, -8]} opacity={1} permanent>
             Restaurant: {d.restaurant?.name || d.restaurantName || "Restaurant"}
