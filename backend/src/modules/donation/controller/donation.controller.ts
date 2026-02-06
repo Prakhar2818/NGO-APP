@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import { Donation, DonationStatus } from "../models/donation.model.js";
 import { emitNewDonation } from "../../../socket.js";
+import User from "../../auth/models/user.model.js";
+import { sendEmail } from "../../../utils/email.js";
 
 // Create Donations
 export const createDonation = async (req: Request, res: Response) => {
@@ -24,6 +26,42 @@ export const createDonation = async (req: Request, res: Response) => {
       expiryTime: donation.expiryTime,
       foodType: donation.foodType,
     });
+
+    const ngos = await User.find({ role: "NGO" }).select("email name");
+    const restaurtant = await User.findById(req.user!.userId).select(
+      "restaurantName name",
+    );
+
+    const subject = "New Food Donation Available";
+
+    const text = `
+Hi,
+
+New Donation available by ${restaurtant?.restaurantName || restaurtant?.name || "Restaurant"}
+
+Donation Details:
+Food Name: ${donation.foodName}
+Quantity: ${donation.quantity}
+Food Type: ${donation.foodType}
+Expiry Time: ${donation.expiryTime}
+
+Please login to your dashboard to accept this donation.
+
+Thank You,
+NGO Food
+`;
+
+    if (ngos.length > 0) {
+      Promise.all(
+        ngos.map((ngo) => {
+          sendEmail({
+            to: ngo.email,
+            subject,
+            text,
+          });
+        }),
+      ).catch((err) => console.error("Failed to send donation emails:", err));
+    }
 
     return res.status(201).json({
       success: true,
