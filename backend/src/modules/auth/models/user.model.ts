@@ -15,6 +15,7 @@ export interface IUser extends Document {
   phone?: number;
 
   profileCompleted: boolean;
+  isBlocked: boolean;
 
   documents?: {
     ngo?: {
@@ -81,6 +82,11 @@ const userSchema = new Schema<IUser>(
       trim: true,
     },
     profileCompleted: {
+      type: Boolean,
+      default: false,
+    },
+
+    isBlocked: {
       type: Boolean,
       default: false,
     },
