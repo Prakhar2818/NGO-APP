@@ -8,6 +8,7 @@ import {
   setToken,
   setRole,
   setProfileCompleted,
+  setIsBlocked,
   getProfileCompleted,
   getRole,
 } from "../../../utils/token.js";
@@ -22,6 +23,7 @@ interface LoginResponse {
   token: string;
   role: "ADMIN" | "NGO" | "RESTAURANT";
   profileCompleted: boolean;
+  isBlocked: boolean;
 }
 
 const Login: React.FC = () => {
@@ -47,6 +49,7 @@ const Login: React.FC = () => {
       setToken(res.data.token);
       setRole(res.data.role);
       setProfileCompleted(res.data.profileCompleted);
+      setIsBlocked(res.data.isBlocked);
 
       toast.success("Login Successful");
 

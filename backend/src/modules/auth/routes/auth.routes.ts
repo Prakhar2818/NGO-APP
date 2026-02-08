@@ -6,6 +6,7 @@ import {
   register,
   login,
   refreshToken,
+  getCurrentUser,
   forgotPassword,
   resetPassword,
 } from "../controller/auth.controller.js";
@@ -36,6 +37,7 @@ router.post(
   validate(loginSchema),
   login,
 );
+router.get("/me", protect, getCurrentUser);
 router.post("/refresh-token", protect, refreshToken);
 router.post(
   "/forgot-password",

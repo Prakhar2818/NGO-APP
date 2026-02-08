@@ -1,9 +1,14 @@
 import pLimit from "p-limit";
-import { NextFunction } from "express";
+import { Response, Request, NextFunction } from "express";
 
 const limit = pLimit(5);
 
-export const concurrencyUploadLimiter = async (next: NextFunction) => {
-  await limit(() => Promise.resolve());
-  next();
+export const concurrencyUploadLimiter = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  limit(() => Promise.resolve())
+    .then(() => next())
+    .catch(next);
 };

@@ -7,10 +7,11 @@ import ResetPassword from "../modules/auth/pages/ResetPassword"
 import ProtectedRoutes from "./ProtectedRoutes"
 import CompleteRegistration from "../modules/auth/pages/CompletRegistartion"
 import ProfileGuard from "./ProfileGuard"
+import BlockedGuard from "./BlockedGuard"
 
 import NGODashboard from "../modules/auth/pages/dashboard/ngo/NGODashboard"
 import RestaurantDashboard from "../modules/auth/pages/dashboard/restaurant/RestaurantDashboard"
-import AdminDashboard from "../modules/auth/pages/dashboard/AdminDashboard"
+import AdminDashboard from "../modules/auth/pages/dashboard/admin/AdminDashboard"
 
 const AppRouter:React.FC = () => {
   return (
@@ -33,7 +34,9 @@ const AppRouter:React.FC = () => {
         <Route path="/ngo" element={
           <ProtectedRoutes>
             <ProfileGuard>
-              <NGODashboard />
+              <BlockedGuard>
+                <NGODashboard />
+              </BlockedGuard>
             </ProfileGuard>
           </ProtectedRoutes>
         } />
@@ -41,7 +44,9 @@ const AppRouter:React.FC = () => {
         <Route path="/restaurant" element={
           <ProtectedRoutes>
             <ProfileGuard>
-              <RestaurantDashboard />
+              <BlockedGuard>
+                <RestaurantDashboard />
+              </BlockedGuard>
             </ProfileGuard>
           </ProtectedRoutes>
         } />

@@ -31,11 +31,22 @@ export const getProfileCompleted = (): boolean => {
   return localStorage.getItem("profileCompleted") === "true";
 };
 
+// Set blocked flag
+export const setIsBlocked = (isBlocked: boolean): void => {
+  localStorage.setItem("isBlocked", isBlocked.toString());
+};
+
+// Get blocked flag
+export const getIsBlocked = (): boolean => {
+  return localStorage.getItem("isBlocked") === "true";
+};
+
 // Remove token & user info (logout)
 export const removeToken = (): void => {
   localStorage.removeItem("token");
   localStorage.removeItem("role");
   localStorage.removeItem("profileCompleted");
+  localStorage.removeItem("isBlocked");
 };
 
 // Check if user is authenticated
