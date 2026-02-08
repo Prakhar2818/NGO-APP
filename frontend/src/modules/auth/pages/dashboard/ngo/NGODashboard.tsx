@@ -28,6 +28,15 @@ const NGODashboard: React.FC = () => {
     return saved ? JSON.parse(saved) : [];
   });
   const [showPanel, setShowPanel] = useState(false);
+  const [localNotificationsEnabled, setLocalNotificationsEnabled] = useState(
+    () => localStorage.getItem("ngo-local-notifications") === "true",
+  );
+  const [notificationPermission, setNotificationPermission] =
+    useState<NotificationPermission>(() => {
+      if (typeof window === "undefined") return "default";
+      if (!("Notification" in window)) return "denied";
+      return Notification.permission;
+    });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,6 +58,17 @@ const NGODashboard: React.FC = () => {
         ...p,
       ]);
       toast.info("New donation available");
+
+      if (
+        localNotificationsEnabled &&
+        typeof window !== "undefined" &&
+        "Notification" in window &&
+        Notification.permission === "granted"
+      ) {
+        new Notification("New Donation Available", {
+          body: `${donation.foodName} (${donation.quantity})`,
+        });
+      }
     });
 
     return () => {
@@ -71,6 +91,26 @@ const NGODashboard: React.FC = () => {
     socket.disconnect();
     removeToken();
     navigate("/");
+  };
+
+  const enableLocalNotifications = async () => {
+    if (typeof window === "undefined" || !("Notification" in window)) {
+      toast.error("Local notifications are not supported in this browser");
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    setNotificationPermission(permission);
+
+    if (permission === "granted") {
+      localStorage.setItem("ngo-local-notifications", "true");
+      setLocalNotificationsEnabled(true);
+      toast.success("Local notifications enabled");
+    } else {
+      localStorage.setItem("ngo-local-notifications", "false");
+      setLocalNotificationsEnabled(false);
+      toast.info("Local notifications are disabled");
+    }
   };
 
   return (
@@ -101,6 +141,9 @@ const NGODashboard: React.FC = () => {
           <NotificationPanel 
             notifications={notifications} 
             onClose={() => setShowPanel(false)}
+            localNotificationsEnabled={localNotificationsEnabled}
+            notificationPermission={notificationPermission}
+            onEnableLocalNotifications={enableLocalNotifications}
           />
         </div>
       )}

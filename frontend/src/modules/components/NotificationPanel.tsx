@@ -8,6 +8,9 @@ interface Notification {
 interface Props {
   notifications: Notification[];
   onClose?: () => void;
+  localNotificationsEnabled?: boolean;
+  notificationPermission?: NotificationPermission;
+  onEnableLocalNotifications?: () => void;
 }
 
 const formatDate = (date: string) => {
@@ -20,11 +23,25 @@ const formatDate = (date: string) => {
   });
 };
 
-const NotificationPanel: React.FC<Props> = ({ notifications, onClose }) => {
+const NotificationPanel: React.FC<Props> = ({
+  notifications,
+  onClose,
+  localNotificationsEnabled,
+  notificationPermission,
+  onEnableLocalNotifications,
+}) => {
   if (notifications.length === 0) {
     return (
       <div className="p-4 text-gray-500 text-sm text-center font-mono">
         <p className="mb-2">No notifications</p>
+        {onEnableLocalNotifications && notificationPermission !== "granted" && (
+          <button
+            onClick={onEnableLocalNotifications}
+            className="text-purple-600 hover:text-purple-700 text-xs font-medium mb-2"
+          >
+            Enable local notifications
+          </button>
+        )}
         {onClose && (
           <button
             onClick={onClose}
@@ -43,14 +60,25 @@ const NotificationPanel: React.FC<Props> = ({ notifications, onClose }) => {
         <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
           Notifications
         </span>
-        {onClose && (
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
-          >
-            X
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          {onEnableLocalNotifications &&
+            notificationPermission !== "granted" && (
+              <button
+                onClick={onEnableLocalNotifications}
+                className="text-purple-600 hover:text-purple-700 text-xs font-medium"
+              >
+                Enable local notifications
+              </button>
+            )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              X
+            </button>
+          )}
+        </div>
       </div>
       {notifications.map((n, index) => (
         <div

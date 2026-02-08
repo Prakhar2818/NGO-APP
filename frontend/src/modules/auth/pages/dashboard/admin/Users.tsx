@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Search, UserPlus, X, Mail, Shield, Building } from "lucide-react";
 import api from "../../../../../services/api";
 import NotFound from "../../../../../assets/not-found.png";
+import { toast } from "react-toastify";
 
 interface User {
   _id: string;
@@ -11,6 +12,8 @@ interface User {
   organizationName?: string;
   restaurantName?: string;
   isBlocked: boolean;
+  address?: string;
+  phone?: number;
   createdAt: string;
 }
 
@@ -24,11 +27,22 @@ const UsersManagement: React.FC<UsersManagementProps> = ({ onUserUpdated }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     role: "RESTAURANT" as "RESTAURANT" | "NGO",
+  });
+  const [editForm, setEditForm] = useState({
+    name: "",
+    email: "",
+    role: "RESTAURANT" as "RESTAURANT" | "NGO",
+    organizationName: "",
+    restaurantName: "",
+    address: "",
+    phone: "",
   });
 
   const fetchUsers = async () => {
@@ -90,6 +104,52 @@ const UsersManagement: React.FC<UsersManagementProps> = ({ onUserUpdated }) => {
       onUserUpdated();
     } catch (error) {
       alert("Failed to update user status");
+    }
+  };
+
+  const openEditModal = (user: User) => {
+    setSelectedUser(user);
+    setEditForm({
+      name: user.name || "",
+      email: user.email || "",
+      role: user.role,
+      organizationName: user.organizationName || "",
+      restaurantName: user.restaurantName || "",
+      address: user.address || "",
+      phone: user.phone ? String(user.phone) : "",
+    });
+    setShowEditModal(true);
+  };
+
+  const updateUser = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    if (!selectedUser) return;
+
+    try {
+      const payload: any = {
+        name: editForm.name,
+        email: editForm.email,
+        role: editForm.role,
+        address: editForm.address,
+        phone: editForm.phone ? Number(editForm.phone) : undefined,
+      };
+
+      if (editForm.role === "NGO") {
+        payload.organizationName = editForm.organizationName;
+        payload.restaurantName = "";
+      } else {
+        payload.restaurantName = editForm.restaurantName;
+        payload.organizationName = "";
+      }
+
+      await api.patch(`/admin/users/${selectedUser._id}`, payload);
+      setShowEditModal(false);
+      setSelectedUser(null);
+      toast.success("User updated successfully")
+      fetchUsers();
+      onUserUpdated();
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Failed to update user");
     }
   };
 
@@ -202,18 +262,26 @@ const UsersManagement: React.FC<UsersManagementProps> = ({ onUserUpdated }) => {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() =>
-                          toggleBlockUser(user._id, user.isBlocked)
-                        }
-                        className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
-                          user.isBlocked
-                            ? "bg-green-100 text-green-700 hover:bg-green-200"
-                            : "bg-red-100 text-red-700 hover:bg-red-200"
-                        }`}
-                      >
-                        {user.isBlocked ? "Unblock" : "Block"}
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => openEditModal(user)}
+                          className="px-3 py-1 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() =>
+                            toggleBlockUser(user._id, user.isBlocked)
+                          }
+                          className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                            user.isBlocked
+                              ? "bg-green-100 text-green-700 hover:bg-green-200"
+                              : "bg-red-100 text-red-700 hover:bg-red-200"
+                          }`}
+                        >
+                          {user.isBlocked ? "Unblock" : "Block"}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -320,6 +388,154 @@ const UsersManagement: React.FC<UsersManagementProps> = ({ onUserUpdated }) => {
                     className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-medium transition-colors text-sm sm:text-base"
                   >
                     Create User
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit User Modal */}
+      {showEditModal && selectedUser && (
+        <div className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 p-3 sm:p-4 font-mono">
+          <div className="bg-white rounded-2xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-4 sm:p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+                  Update User
+                </h2>
+                <button
+                  onClick={() => setShowEditModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              <form onSubmit={updateUser} className="space-y-3 sm:space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.name}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, name: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-lg p-2 text-sm sm:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    value={editForm.email}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, email: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-lg p-2 text-sm sm:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Role
+                  </label>
+                  <select
+                    value={editForm.role}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        role: e.target.value as "RESTAURANT" | "NGO",
+                      })
+                    }
+                    className="w-full border border-gray-300 rounded-lg p-2 text-sm sm:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="RESTAURANT">Restaurant</option>
+                    <option value="NGO">NGO</option>
+                  </select>
+                </div>
+
+                {editForm.role === "NGO" ? (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Organization Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.organizationName}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          organizationName: e.target.value,
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg p-2 text-sm sm:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                  </div>
+                ) : (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Restaurant Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.restaurantName}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          restaurantName: e.target.value,
+                        })
+                      }
+                      className="w-full border border-gray-300 rounded-lg p-2 text-sm sm:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Address
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.address}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, address: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-lg p-2 text-sm sm:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={editForm.phone}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, phone: e.target.value })
+                    }
+                    className="w-full border border-gray-300 rounded-lg p-2 text-sm sm:text-base focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowEditModal(false)}
+                    className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 rounded-lg font-medium transition-colors text-sm sm:text-base"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-medium transition-colors text-sm sm:text-base"
+                  >
+                    Update User
                   </button>
                 </div>
               </form>

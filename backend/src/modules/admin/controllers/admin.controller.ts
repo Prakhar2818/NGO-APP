@@ -65,13 +65,37 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
-    const { name } = req.body;
+    const {
+      name,
+      email,
+      role,
+      organizationName,
+      restaurantName,
+      address,
+      phone,
+    } = req.body;
 
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { name },
-      { new: true },
-    ).select("-password");
+    if (role && !["NGO", "RESTAURANT"].includes(role)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
+      return;
+    }
+
+    const update: any = {};
+    if (name !== undefined) update.name = name;
+    if (email !== undefined) update.email = email;
+    if (role !== undefined) update.role = role;
+    if (organizationName !== undefined) update.organizationName = organizationName;
+    if (restaurantName !== undefined) update.restaurantName = restaurantName;
+    if (address !== undefined) update.address = address;
+    if (phone !== undefined) update.phone = phone;
+
+    const user = await User.findByIdAndUpdate(req.params.id, update, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
 
     res.status(200).json({
       success: true,
