@@ -7,6 +7,7 @@ import {
 } from "react-leaflet";
 import { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
+import "../../utils/leafletIcons";
 
 import RecenterMap from "./RecenterMap";
 

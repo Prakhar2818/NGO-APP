@@ -9,6 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import "leaflet/dist/leaflet.css";
+import "../../utils/leafletIcons";
 
 interface Props {
   donations: any[];
