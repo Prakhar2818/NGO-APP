@@ -15,21 +15,38 @@ import { userLimiter } from "../../../middleware/userLimiter.middleware.js";
 
 const router = Router();
 
-router.use(userLimiter);
-
 // Get All users
-router.get("/users", protect, roleMiddleware("ADMIN"), getAllUsers);
+router.get(
+  "/users",
+  protect,
+  userLimiter,
+  roleMiddleware("ADMIN"),
+  getAllUsers,
+);
 
 // Create NGO / Restaurant
-router.post("/users", protect, roleMiddleware("ADMIN"), createUser);
+router.post(
+  "/users",
+  protect,
+  userLimiter,
+  roleMiddleware("ADMIN"),
+  createUser,
+);
 
 // Update user (name / org / restaurant)
-router.patch("/users/:id", protect, roleMiddleware("ADMIN"), updateUser);
+router.patch(
+  "/users/:id",
+  protect,
+  userLimiter,
+  roleMiddleware("ADMIN"),
+  updateUser,
+);
 
 // Block / Unblock user
 router.patch(
   "/users/:id/block",
   protect,
+  userLimiter,
   roleMiddleware("ADMIN"),
   toggleBlockUser,
 );
@@ -41,6 +58,7 @@ router.get("/donations", protect, roleMiddleware("ADMIN"), getAllDonations);
 router.get(
   "/analytics/summary",
   protect,
+  userLimiter,
   roleMiddleware("ADMIN"),
   donationSummary,
 );

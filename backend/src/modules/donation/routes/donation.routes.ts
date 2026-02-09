@@ -21,11 +21,11 @@ import { getRoute } from "../controller/route.controller.js";
 import { userLimiter } from "../../../middleware/userLimiter.middleware.js";
 
 const router = Router();
-router.use(userLimiter);
 // Restaurant
 router.post(
   "/create-donation",
   protect,
+  userLimiter,
   roleMiddleware("RESTAURANT"),
   validate(createDonationSchema),
   createDonation,
@@ -33,6 +33,7 @@ router.post(
 router.patch(
   "/:id",
   protect,
+  userLimiter,
   roleMiddleware("RESTAURANT"),
   donationOwnership,
   allowOnlyPending,
@@ -41,6 +42,7 @@ router.patch(
 router.delete(
   "/:id",
   protect,
+  userLimiter,
   roleMiddleware("RESTAURANT"),
   donationOwnership,
   allowOnlyPending,
@@ -49,15 +51,40 @@ router.delete(
 router.get(
   "/restaurant/dashboard",
   protect,
+  userLimiter,
   roleMiddleware("RESTAURANT"),
   restaurantDashboard,
 );
 
 // NGO
-router.get("/browse", protect, roleMiddleware("NGO"), browseDonations);
-router.post("/:id/accept", protect, roleMiddleware("NGO"), acceptDonation);
-router.patch("/:id/pickup", protect, roleMiddleware("NGO"), markPickedUp);
-router.get("/ngo/history", protect, roleMiddleware("NGO"), ngoHistory);
+router.get(
+  "/browse",
+  protect,
+  userLimiter,
+  roleMiddleware("NGO"),
+  browseDonations,
+);
+router.post(
+  "/:id/accept",
+  protect,
+  userLimiter,
+  roleMiddleware("NGO"),
+  acceptDonation,
+);
+router.patch(
+  "/:id/pickup",
+  protect,
+  userLimiter,
+  roleMiddleware("NGO"),
+  markPickedUp,
+);
+router.get(
+  "/ngo/history",
+  protect,
+  userLimiter,
+  roleMiddleware("NGO"),
+  ngoHistory,
+);
 
 router.get("/route", protect, roleMiddleware("NGO"), getRoute);
 
