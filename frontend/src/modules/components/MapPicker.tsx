@@ -7,7 +7,7 @@ import {
 } from "react-leaflet";
 import { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
-import "../../utils/leafletIcons";
+import { defaultMarkerIcon } from "../../utils/leafletIcons";
 
 import RecenterMap from "./RecenterMap";
 
@@ -48,7 +48,7 @@ const MapPicker: React.FC<Props> = ({ onSelect }) => {
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       {pos && <RecenterMap position={pos} />}
       <MapClick />
-      {pos && <Marker position={pos} />}
+      {pos && <Marker position={pos} icon={defaultMarkerIcon} />}
     </MapContainer>
   );
 };
