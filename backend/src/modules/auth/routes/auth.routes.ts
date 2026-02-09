@@ -26,7 +26,7 @@ import {
   forgotLimiter,
 } from "../middleware/authLImiter.middleware.js";
 import { loginLockCheck } from "../middleware/loginLock.middleware.js";
-import { registerLimiter } from "../middleware/registerLimitter.middleware.js";
+import { registerLimiter } from "../middleware/registerLimiter.middleware.js";
 
 const router = Router();
 
