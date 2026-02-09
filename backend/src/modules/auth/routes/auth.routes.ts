@@ -26,10 +26,11 @@ import {
   forgotLimiter,
 } from "../middleware/authLImiter.middleware.js";
 import { loginLockCheck } from "../middleware/loginLock.middleware.js";
+import { registerLimiter } from "../middleware/registerLimitter.middleware.js";
 
 const router = Router();
 
-router.post("/register", authRateLimiter, validate(registerSchema), register);
+router.post("/register", registerLimiter, validate(registerSchema), register);
 router.post(
   "/login",
   loginLockCheck,
