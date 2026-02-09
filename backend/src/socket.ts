@@ -14,10 +14,10 @@ export const initSocket = (server: http.Server) => {
 
   io.on("connection", (socket) => {
     console.log("Socket connected", socket.id);
-  });
 
-  io.on("disconnect", (socket) => {
-    console.log("Socket disconnected", socket.id);
+    socket.on("disconnect", (reason) => {
+      console.log("Socket disconnected", socket.id, reason);
+    });
   });
 };
 

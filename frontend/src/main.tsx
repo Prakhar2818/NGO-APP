@@ -6,6 +6,7 @@ import App from "./App";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./utils/leafletIcons";
+import { startSocketCycle } from "./socket";
 
 const rootElement = document.getElementById("root");
 
@@ -27,3 +28,5 @@ createRoot(rootElement).render(
     />
   </StrictMode>,
 );
+
+startSocketCycle();

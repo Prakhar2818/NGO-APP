@@ -6,7 +6,7 @@ import ActiveDonations from "./ActiveDonations";
 import DonationHistory from "./DonationHistory";
 import MetricCard from "../../../../components/MetricCard";
 import NotificationPanel from "../../../../components/NotificationPanel";
-import { socket } from "../../../../../socket";
+import { socket, stopSocketCycle } from "../../../../../socket";
 import { removeToken } from "../../../../../utils/token";
 import { toast } from "react-toastify";
 import api from "../../../../../services/api";
@@ -88,7 +88,7 @@ const NGODashboard: React.FC = () => {
   }, []);
 
   const handleLogout = () => {
-    socket.disconnect();
+    stopSocketCycle(true);
     removeToken();
     navigate("/");
   };
