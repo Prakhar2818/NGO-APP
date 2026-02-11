@@ -10,11 +10,40 @@ import adminRoutes from "./modules/admin/routes/admin.routes.js";
 import { globalRateLimiter } from "./middleware/globalLimiter.middleware.js";
 
 const app: Application = express();
+const allowedOrigins = new Set(
+  [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "https://ngo-app-theta.vercel.app",
+    process.env.CLIENT_URL,
+  ].filter(Boolean) as string[],
+);
 
 // Middlewares
 app.use(
   cors({
-    origin: ["https://ngo-app-theta.vercel.app", "http://localhost:5173"],
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      if (allowedOrigins.has(origin)) {
+        callback(null, true);
+        return;
+      }
+
+      const isVercelDeployment = /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(
+        origin,
+      );
+
+      if (isVercelDeployment) {
+        callback(null, true);
+        return;
+      }
+
+      callback(new Error("Not allowed by CORS"));
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     credentials: true,
   }),
