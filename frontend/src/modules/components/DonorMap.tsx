@@ -9,7 +9,7 @@ import {
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import "leaflet/dist/leaflet.css";
-import "../../utils/leafletIcons";
+import { defaultMarkerIcon } from "../../utils/leafletIcons";
 
 interface Props {
   donations: any[];
@@ -23,7 +23,7 @@ const DonorMap: React.FC<Props> = ({
   distanceById = {},
 }) => {
   const [route, setRoute] = useState<any[]>([]);
-  const [ngoName, setNgoName] = useState<string>("NGO");
+  const [ngoName, setNgoName] = useState<string>("");
 
   useEffect(() => {
     if (!donations.length) {
@@ -77,12 +77,11 @@ const DonorMap: React.FC<Props> = ({
     setNgoName(name);
   }, [donations]);
 
-
   return (
     <MapContainer center={ngoPos} zoom={13} style={{ height: 500 }}>
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-      <Marker position={ngoPos}>
+      <Marker position={ngoPos} icon={defaultMarkerIcon}>
         <Tooltip direction="top" offset={[0, -8]} opacity={1} permanent>
           NGO: {ngoName}
         </Tooltip>
@@ -93,9 +92,10 @@ const DonorMap: React.FC<Props> = ({
         <Marker
           key={d._id}
           position={[d.location.coordinates[1], d.location.coordinates[0]]}
+          icon={defaultMarkerIcon}
         >
           <Tooltip direction="top" offset={[0, -8]} opacity={1} permanent>
-            Restaurant: {d.restaurant?.name || d.restaurantName || "Restaurant"}
+            Restaurant: {d.restaurant.restaurantName || "Restaurant"}
             {typeof distanceById[d._id] === "number" && (
               <span> • {distanceById[d._id].toFixed(2)} km</span>
             )}
