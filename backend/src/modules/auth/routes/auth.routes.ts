@@ -9,6 +9,7 @@ import {
   getCurrentUser,
   forgotPassword,
   resetPassword,
+  logout,
 } from "../controller/auth.controller.js";
 
 import { protect } from "../middleware/auth.middleware.js";
@@ -52,5 +53,6 @@ router.post(
   validate(resetPasswordSchema),
   resetPassword,
 );
+router.post("/logout", protect, logout);
 
 export default router;

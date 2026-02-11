@@ -7,7 +7,7 @@ import DonationHistory from "./DonationHistory";
 import MetricCard from "../../../../components/MetricCard";
 import NotificationPanel from "../../../../components/NotificationPanel";
 import { socket, stopSocketCycle } from "../../../../../socket";
-import { removeToken } from "../../../../../utils/token";
+import { logout } from "../../../../../utils/token";
 import { toast } from "react-toastify";
 import api from "../../../../../services/api";
 import { useNavigate } from "react-router-dom";
@@ -87,10 +87,16 @@ const NGODashboard: React.FC = () => {
     });
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     stopSocketCycle(true);
-    removeToken();
-    navigate("/");
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      // Even if API call fails, clear local data
+    } finally {
+      logout();
+      navigate("/");
+    }
   };
 
   const enableLocalNotifications = async () => {

@@ -10,7 +10,7 @@ const ProfileGuard: React.FC<ProfileGuardProps> = ({ children }) => {
   const profileCompleted = getProfileCompleted();
 
   if (!profileCompleted) {
-    <Navigate to="/complete-registration" />;
+    return <Navigate to="/complete-registration" />;
   }
 
   return <>{children}</>;

@@ -33,8 +33,8 @@ const BlockedGuard: React.FC<BlockedGuardProps> = ({ children }) => {
         if (isMounted) {
           setIsBlockedState(blocked);
         }
-      } catch {
-        // If /auth/me fails, fall back to existing local state
+      } catch (error) {
+        console.error("BlockedGuard: Failed to sync user status:", error);
       } finally {
         if (isMounted) setIsChecking(false);
       }

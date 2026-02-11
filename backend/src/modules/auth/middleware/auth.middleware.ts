@@ -20,9 +20,17 @@ export const protect = (
   next: NextFunction,
 ): void => {
   try {
+    
+    let token: string | undefined;
     const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith("Bearer")) {
+    if (authHeader && authHeader.startsWith("Bearer")) {
+      token = authHeader.split(" ")[1];
+    } else if (req.cookies && req.cookies.token) {
+      token = req.cookies.token;
+    }
+
+    if (!token) {
       res.status(401).json({
         success: false,
         message: "Unauthorized",
@@ -30,7 +38,6 @@ export const protect = (
       return;
     }
 
-    const token = authHeader.split(" ")[1];
     const decoded = verifyToken(token) as JwtPayload & AuthUser;
 
     req.user = {

@@ -2,6 +2,7 @@
 
 import express, { Application } from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import authRoutes from "./modules/auth/routes/auth.routes.js";
 import profileRoutes from "./modules/auth/routes/profile.routes.js";
 import donationRoutes from "./modules/donation/routes/donation.routes.js";
@@ -19,6 +20,7 @@ app.use(
   }),
 );
 app.use(express.json());
+app.use(cookieParser());
 app.set("trust proxy", 1);
 app.use(globalRateLimiter);
 

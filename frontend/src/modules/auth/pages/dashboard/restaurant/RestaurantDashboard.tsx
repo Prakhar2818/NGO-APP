@@ -6,7 +6,7 @@ import ActiveDonations from "./ActiveDonations";
 import DonationHistory from "./DonationHistory";
 import MetricCard from "../../../../components/MetricCard";
 import api from "../../../../../services/api";
-import { removeToken } from "../../../../../utils/token";
+import { logout } from "../../../../../utils/token";
 import { useNavigate } from "react-router-dom";
 
 const RestaurantDashboard: React.FC = () => {
@@ -42,9 +42,15 @@ const RestaurantDashboard: React.FC = () => {
     fetchDashboardData();
   }, []);
 
-  const handleLogout = () => {
-    removeToken();
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      // Even if API call fails, clear local data
+    } finally {
+      logout();
+      navigate("/");
+    }
   };
 
   return (

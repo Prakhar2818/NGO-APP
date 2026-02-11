@@ -12,7 +12,8 @@ import {
 import { ReactNode, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { removeToken } from "../../utils/token";
+import { logout } from "../../utils/token";
+import api from "../../services/api";
 
 interface Tab {
   key: string;
@@ -58,9 +59,15 @@ const Navbar: React.FC<Props> = ({
 
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    removeToken();
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } catch (error) {
+      // Even if API call fails, clear local data
+    } finally {
+      logout();
+      navigate("/");
+    }
   };
 
   return (

@@ -5,12 +5,12 @@ import * as yup from "yup";
 
 import api from "../../../services/api.js";
 import {
-  setToken,
   setRole,
   setProfileCompleted,
   setIsBlocked,
   getProfileCompleted,
   getRole,
+  getIsBlocked,
 } from "../../../utils/token.js";
 import { loginSchema } from "../../../validations/auth.validation.js";
 
@@ -20,7 +20,6 @@ interface LoginForm {
 }
 
 interface LoginResponse {
-  token: string;
   role: "ADMIN" | "NGO" | "RESTAURANT";
   profileCompleted: boolean;
   isBlocked: boolean;
@@ -46,7 +45,6 @@ const Login: React.FC = () => {
 
       const res = await api.post<LoginResponse>("/auth/login", form);
 
-      setToken(res.data.token);
       setRole(res.data.role);
       setProfileCompleted(res.data.profileCompleted);
       setIsBlocked(res.data.isBlocked);
@@ -61,9 +59,15 @@ const Login: React.FC = () => {
         return;
       }
 
-      if (role === "ADMIN") navigate("/admin");
-      else if (role === "NGO") navigate("/ngo");
-      else navigate("/restaurant");
+      const isBlocked = getIsBlocked();
+      if (isBlocked) {
+        toast.error("Your account has been blocked. Please contact support.");
+        return;
+      }
+
+      if (role === "ADMIN") navigate("/admin", { replace: true });
+      else if (role === "NGO") navigate("/ngo", { replace: true });
+      else navigate("/restaurant", { replace: true });
     } catch (err: any) {
       if (err instanceof yup.ValidationError) {
         toast.error(err.errors[0]);

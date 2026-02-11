@@ -7,8 +7,17 @@ import { sendEmail } from "../../../utils/email.js";
 
 import {
   recordFailure,
-  recordSuccess,
 } from "../middleware/loginLock.middleware.js";
+
+// Helper function to set token cookie
+const setTokenCookie = (res: Response, token: string): void => {
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+};
 
 // Register
 export const register = async (req: Request, res: Response): Promise<void> => {
@@ -37,10 +46,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       role: user.role,
     });
 
+    setTokenCookie(res, token);
+
     res.status(201).json({
       success: true,
       message: "User registered successfully",
-      token,
     });
   } catch (error: unknown) {
     res.status(500).json({
@@ -79,14 +89,15 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       role: user.role,
     });
 
+  
+    setTokenCookie(res, token);
+
     res.status(200).json({
       success: true,
       message: "Login successfull",
-      token,
       role: user.role,
       profileCompleted: user.profileCompleted,
       isBlocked: user.isBlocked,
-      recordSuccess,
     });
   } catch (error: unknown) {
     res.status(500).json({
@@ -109,9 +120,10 @@ export const refreshToken = async (
       role,
     });
 
+    setTokenCookie(res, newToken);
+
     res.status(200).json({
       success: true,
-      token: newToken,
     });
   } catch (error) {
     res.status(401).json({
@@ -258,6 +270,27 @@ export const resetPassword = async (
     res.status(500).json({
       success: false,
       message: error instanceof Error ? error.message : "Password reset failed",
+    });
+  }
+};
+
+// Logout
+export const logout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Logout failed",
     });
   }
 };
