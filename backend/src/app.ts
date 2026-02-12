@@ -9,6 +9,9 @@ import donationRoutes from "./modules/donation/routes/donation.routes.js";
 import adminRoutes from "./modules/admin/routes/admin.routes.js";
 import { globalRateLimiter } from "./middleware/globalLimiter.middleware.js";
 
+import apiLogger from "./middleware/apiLogger.middleware.js";
+import errorLogger from "./middleware/errorLogger.middleware.js";
+
 const app: Application = express();
 const allowedOrigins = new Set(
   [
@@ -53,9 +56,13 @@ app.use(cookieParser());
 app.set("trust proxy", 1);
 app.use(globalRateLimiter);
 
+app.use(apiLogger);
+
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/donation", donationRoutes);
 app.use("/api/admin", adminRoutes);
+
+app.use(errorLogger);
 
 export default app;
