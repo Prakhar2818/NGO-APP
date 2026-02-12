@@ -4,5 +4,6 @@ global:
 scrape_configs:
   - job_name: prometheus
     metrics_path: "/metrics"
+    scheme: https
     static_configs:
-      - targets: ["https://ngo-app-mqgs.onrender.com"]
+      - targets: ["ngo-app-mqgs.onrender.com"]
