@@ -100,10 +100,17 @@ export const completeProfile = async (
       success: true,
       message: "Registration completed successfully",
     });
-  } catch {
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Registration failed";
+
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Complete registration error:", error);
+    }
+
     res.status(500).json({
       success: false,
-      message: "Registration failed",
+      message: errorMessage,
     });
   }
 };
