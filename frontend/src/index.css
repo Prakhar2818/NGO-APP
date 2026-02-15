@@ -1,1 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&display=swap');
 @import "tailwindcss";
+
+:root {
+  /* Colors */
+  --color-primary: #8b5cf6;
+  --color-primary-dark: #7c3aed;
+  --color-secondary: #0ea5e9;
+  --color-accent: #d946ef;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-text: #1e293b;
+  --color-text-secondary: #64748b;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  
+  /* Typography */
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  
+  /* Borders */
+  --border-radius: 0.5rem;
+  --border-radius-lg: 0.75rem;
+  --border-radius-xl: 1rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-background);
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+/* Direct color overrides to ensure purple theme applies */
+.bg-primary-600 { background-color: #7c3aed !important; }
+.bg-primary-400 { background-color: #a78bfa !important; }
+.text-primary-600 { color: #7c3aed !important; }
+.border-primary-600 { border-color: #7c3aed !important; }
+.hover\:bg-primary-600:hover { background-color: #6d28d9 !important; }
+.hover\:text-primary-600:hover { color: #7c3aed !important; }
+
+.bg-primary-100 { background-color: #ede9fe !important; }
+.text-primary-100 { color: #ede9fe !important; }
+.text-primary-800 { color: #5b21b6 !important; }
+
+.bg-accent-600 { background-color: #c026d3 !important; }
+.text-accent-600 { color: #c026d3 !important; }
+.hover\:text-accent-600:hover { color: #c026d3 !important; }
+
+/* Gradient overrides for CTA sections */
+.bg-gradient-to-r.from-primary-600.to-accent-600 {
+  background-image: linear-gradient(to right, #7c3aed, #c026d3) !important;
+  background-color: transparent !important;
+}
+
+/* Test the CSS custom properties */
+.test-primary { color: var(--color-primary); }
+.test-accent { color: var(--color-accent); }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.3;
+}

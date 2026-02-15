@@ -1,144 +1,275 @@
-import { ArrowRight, HeartHandshake, ShieldCheck, TimerReset, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import {
+  ArrowRight,
+  HeartHandshake,
+  ShieldCheck,
+  TimerReset,
+  Users,
+  TrendingUp,
+  Award,
+  Globe,
+} from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import PublicNavbar from "../../components/PublicNavbar";
+import Footer from "../../components/Footer";
+import Section from "../../components/ui/Section";
+import Card from "../../components/ui/Card";
+import Button from "../../components/ui/Button";
 
 const impactStats = [
-  { label: "Meals Delivered", value: "25K+" },
-  { label: "Partner NGOs", value: "120+" },
-  { label: "Restaurants", value: "340+" },
-  { label: "Food Waste Reduced", value: "18T+" },
+  { label: "Meals Delivered", value: "25K+", icon: HeartHandshake },
+  { label: "Partner NGOs", value: "120+", icon: Users },
+  { label: "Restaurants", value: "340+", icon: Award },
+  { label: "Food Waste Reduced", value: "18T+", icon: TrendingUp },
 ];
 
 const features = [
   {
     title: "Fast Donation Matching",
-    description: "Restaurants and NGOs connect in minutes with live availability.",
+    description:
+      "Restaurants and NGOs connect in minutes with live availability.",
     icon: TimerReset,
   },
   {
     title: "Verified Participants",
-    description: "Role-based onboarding and profile checks keep operations reliable.",
+    description:
+      "Role-based onboarding and profile checks keep operations reliable.",
     icon: ShieldCheck,
   },
   {
     title: "Impact You Can Track",
-    description: "Monitor accepted, picked-up, and completed donations in one flow.",
+    description:
+      "Monitor accepted, picked-up, and completed donations in one flow.",
     icon: HeartHandshake,
+  },
+  {
+    title: "Global Reach",
+    description: "Connect with organizations across regions and communities.",
+    icon: Globe,
+  },
+];
+
+const howItWorksSteps = [
+  {
+    step: 1,
+    title: "Register Your Organization",
+    description:
+      "Create an account as a restaurant or NGO with verified credentials.",
+  },
+  {
+    step: 2,
+    title: "Create or Browse Donations",
+    description:
+      "Restaurants post available food, NGOs browse and accept suitable donations.",
+  },
+  {
+    step: 3,
+    title: "Coordinate Pickup",
+    description:
+      "Schedule pickup times and coordinate logistics between parties.",
+  },
+  {
+    step: 4,
+    title: "Track Impact",
+    description: "Monitor successful deliveries and measure community impact.",
   },
 ];
 
 const LandingPage: React.FC = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace('#', '');
+      const element = document.getElementById(id);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      }
+    }
+  }, [location.hash]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-indigo-100 to-pink-100 font-mono text-gray-900">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <header className="mb-10 rounded-3xl border border-white/60 bg-white/75 p-4 shadow-xl backdrop-blur-xl sm:p-5">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-purple-700">
-                NGO Connect
-              </p>
-              <h1 className="text-lg font-bold text-gray-900 sm:text-xl">
-                Rescue Food. Serve Communities.
-              </h1>
-            </div>
-            <div className="flex gap-2 sm:gap-3">
-              <Link
-                to="/login"
-                className="rounded-xl border border-purple-200 bg-white px-4 py-2 text-sm font-semibold text-purple-700 transition hover:bg-purple-50"
-              >
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:from-purple-700 hover:to-indigo-700"
-              >
-                Register
-              </Link>
-            </div>
-          </div>
-        </header>
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50">
+      <PublicNavbar />
 
-        <section className="mb-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-          <div className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
-            <p className="mb-3 inline-flex items-center rounded-full bg-purple-100 px-3 py-1 text-xs font-semibold text-purple-700">
-              <Users size={14} className="mr-2" />
-              Restaurants + NGOs + Admin
+      {/* Hero Section */}
+      <Section backgroundColor="white" padding="xm">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <div className="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-800 rounded-full text-sm font-medium mb-6">
+              <Users size={16} className="mr-2" />
+              Restaurants + NGOs
+            </div>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              Rescue Food.
+              <br />
+              <span className="text-primary-600">Serve Communities.</span>
+            </h1>
+            <p className="text-lg text-gray-600 mb-8 max-w-2xl">
+              A global initiative focused on reducing food waste by connecting
+              surplus food with people in need. Our goal is to promote
+              sustainability, reduce environmental impact, and create a more
+              responsible food ecosystem.
             </p>
-            <h2 className="text-3xl font-bold leading-tight text-gray-900 sm:text-4xl">
-              Make surplus food useful before it is wasted.
-            </h2>
-            <p className="mt-4 max-w-2xl text-sm text-gray-600 sm:text-base">
-              A clean, role-based platform for creating donations, accepting pickups, and monitoring impact
-              without changing your current workflow.
-            </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link
-                to="/register"
-                className="inline-flex items-center rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:from-purple-700 hover:to-indigo-700"
-              >
-                Get Started
-                <ArrowRight size={16} className="ml-2" />
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Link to="/register">
+                <Button
+                  variant="heroButton"
+                  size="lg"
+                  className="transition transform hover:scale-[1.02]"
+                >
+                  Get Started
+                  <ArrowRight size={20} className="ml-2" />
+                </Button>
               </Link>
-              <Link
-                to="/login"
-                className="inline-flex items-center rounded-xl border border-purple-200 bg-white px-5 py-3 text-sm font-semibold text-purple-700 transition hover:bg-purple-50"
-              >
-                Continue to Dashboard
+              <Link to="/login">
+                <Button
+                  variant="cta"
+                  size="lg"
+                  className="transition transform hover:scale-[1.02]"
+                >
+                  Continue to Dashboard
+                </Button>
               </Link>
             </div>
           </div>
-
-          <div className="rounded-3xl border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
-            <h3 className="text-lg font-bold text-purple-700">Impact Snapshot</h3>
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              {impactStats.map((item) => (
-                <div key={item.label} className="rounded-2xl bg-gradient-to-br from-white to-purple-50 p-4">
-                  <p className="text-2xl font-bold text-gray-900">{item.value}</p>
-                  <p className="mt-1 text-xs font-medium text-gray-600">{item.label}</p>
-                </div>
-              ))}
+          <div className="relative">
+            <div id="impact" className="rounded-2xl p-8">
+              <h3 className="text-2xl font-bold mb-6">Impact Snapshot</h3>
+              <div className="grid grid-cols-2 gap-4">
+                {impactStats.map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <Card
+                      key={item.label}
+                      className="bg-primary-600 text-white backdrop-blur-sm border-0 transition transform hover:scale-[1.02]"
+                      padding="sm"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <Icon size={24} className="text-white flex-shrink-0" />
+                        <div>
+                          <p className="text-2xl font-bold">{item.value}</p>
+                          <p className="text-sm opacity-90">{item.label}</p>
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
             </div>
           </div>
-        </section>
+        </div>
+      </Section>
 
-        <section className="mb-8 rounded-3xl border border-white/60 bg-white/80 p-6 shadow-2xl backdrop-blur-xl sm:p-8">
-          <h3 className="text-xl font-bold text-gray-900">Why teams use this platform</h3>
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            {features.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <article key={feature.title} className="rounded-2xl border border-purple-100 bg-white p-5 shadow-sm">
-                  <div className="mb-3 inline-flex rounded-xl bg-purple-100 p-2 text-purple-700">
-                    <Icon size={18} />
-                  </div>
-                  <h4 className="text-base font-bold text-gray-900">{feature.title}</h4>
-                  <p className="mt-2 text-sm text-gray-600">{feature.description}</p>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="rounded-3xl bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-700 p-6 text-white shadow-2xl sm:p-8">
-          <h3 className="text-2xl font-bold">Ready to reduce food waste at scale?</h3>
-          <p className="mt-2 max-w-2xl text-sm text-purple-100 sm:text-base">
-            Sign in to continue your current flow, or create a new account to onboard your organization.
+      {/* Features Section */}
+      <Section backgroundColor="gray" padding="xl" id="features">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Why Teams Use This Platform
+          </h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Designed to streamline food rescue operations while maximizing
+            community impact
           </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link
-              to="/login"
-              className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-purple-700 transition hover:bg-purple-50"
-            >
-              Login
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {features.map((feature) => {
+            const Icon = feature.icon;
+            return (
+              <Card
+                key={feature.title}
+                hover={true}
+                className="text-center transition-transform hover:-translate-y-1"
+              >
+                <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Icon size={28} className="text-primary-600" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-3">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-600">{feature.description}</p>
+              </Card>
+            );
+          })}
+        </div>
+      </Section>
+
+      {/* How It Works Section */}
+      <Section backgroundColor="white" padding="xl" id="how-it-works">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            How It Works
+          </h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            Simple four-step process to connect food donors with community
+            organizations
+          </p>
+        </div>
+
+        <div className="relative">
+          <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-200 transform -translate-x-1/2"></div>
+
+          <div className="grid lg:grid-cols-2 gap-12">
+            {howItWorksSteps.map((step, index) => (
+              <div
+                key={step.step}
+                className={`relative ${index % 2 === 0 ? "lg:pr-12" : "lg:pl-12 lg:col-start-2"}`}
+              >
+                <div className="flex items-start space-x-6">
+                  <div className="flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-lg shadow-lg">
+                      {step.step}
+                    </div>
+                  </div>
+                  <Card className="flex-1 transition-transform hover:-translate-y-1">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3">
+                      {step.title}
+                    </h3>
+                    <p className="text-gray-600">{step.description}</p>
+                  </Card>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* Final CTA Section */}
+      <Section backgroundColor="secondary" padding="xl">
+        <div className="text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            Ready to Reduce Food Waste at Scale?
+          </h2>
+          <p className="text-xl text-gray-800 mb-8 max-w-2xl mx-auto">
+            Join thousands of organizations making a difference in their
+            communities
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/login">
+              <Button
+                size="lg"
+                className="cursor-pointer transition transform hover:scale-[1.02]"
+              >
+                Sign In to Your Account
+              </Button>
             </Link>
-            <Link
-              to="/register"
-              className="rounded-xl border border-white/40 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-            >
-              Register Organization
+            <Link to="/register">
+              <Button
+                variant="cta"
+                size="lg"
+                className=" cursor-pointer transition transform hover:scale-[1.02]"
+              >
+                Register Your Organization
+              </Button>
             </Link>
           </div>
-        </section>
-      </div>
+        </div>
+      </Section>
+
+      <Footer />
     </div>
   );
 };
