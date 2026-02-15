@@ -44,7 +44,7 @@ const ProtectedRoutes: React.FC<ProtectedRoutesProps> = ({ children }) => {
     return null;
   }
 
-  return isAuthorized ? <>{children}</> : <Navigate to="/" replace />;
+  return isAuthorized ? <>{children}</> : <Navigate to="/login" replace />;
 };
 
 export default ProtectedRoutes;

@@ -66,7 +66,7 @@ const Navbar: React.FC<Props> = ({
       // Even if API call fails, clear local data
     } finally {
       logout();
-      navigate("/");
+      navigate("/login");
     }
   };
 

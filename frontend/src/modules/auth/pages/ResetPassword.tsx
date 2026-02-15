@@ -35,7 +35,7 @@ const ResetPassword: React.FC = () => {
       toast.success(res.data.message);
 
       setTimeout(() => {
-        navigate("/");
+        navigate("/login");
       }, 1500);
     } catch (err: any) {
       if (err instanceof yup.ValidationError) {

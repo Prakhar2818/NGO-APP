@@ -47,7 +47,7 @@ const Register: React.FC = () => {
 
       toast.success("Registration successful. Please login.");
       setTimeout(() => {
-        navigate("/");
+        navigate("/login");
       }, 500);
     } catch (err: any) {
       if (err instanceof yup.ValidationError) {
@@ -148,7 +148,7 @@ const Register: React.FC = () => {
         <p className="text-center text-m mt-4">
           Already have an account?{" "}
           <span
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/login")}
             className="text-purple-600 cursor-pointer hover:underline"
           >
             Login

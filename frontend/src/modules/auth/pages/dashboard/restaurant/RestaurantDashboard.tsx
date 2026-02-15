@@ -103,7 +103,7 @@ const RestaurantDashboard: React.FC = () => {
       // Even if API call fails, clear local data
     } finally {
       logout();
-      navigate("/");
+      navigate("/login");
     }
   };
 

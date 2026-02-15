@@ -4,6 +4,7 @@ import Login from "../modules/auth/pages/Login"
 import Register from "../modules/auth/pages/Register"
 import ForgotPassword from "../modules/auth/pages/ForgotPassword"
 import ResetPassword from "../modules/auth/pages/ResetPassword"
+import LandingPage from "../modules/public/pages/LandingPage"
 import ProtectedRoutes from "./ProtectedRoutes"
 import CompleteRegistration from "../modules/auth/pages/CompletRegistartion"
 import ProfileGuard from "./ProfileGuard"
@@ -18,7 +19,8 @@ const AppRouter:React.FC = () => {
     <BrowserRouter>
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<Login />} />
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
