@@ -1,23 +1,97 @@
-import { useEffect, useState } from "react";
-import { TrendingUp, TrendingDown, Calendar } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Building2, Calendar, HandHeart, Leaf, Users } from "lucide-react";
 import api from "../../../../../services/api";
+import LineTrendChart from "../../../../components/charts/LineTrendChart";
+import StackedTrendBars from "../../../../components/charts/StackedTrendBars";
+import DonutBreakdownChart from "../../../../components/charts/DonutBreakdownChart";
+
+type TrendType = "daily" | "weekly" | "monthly";
+type DonationStatus = "PENDING" | "ACCEPTED" | "PICKED_UP";
+
+interface Donation {
+  _id: string;
+  quantity: number;
+  status: DonationStatus;
+  ngoId?: { _id?: string } | string | null;
+  restaurantId?: {
+    _id?: string;
+    name?: string;
+    restaurantName?: string;
+  } | string | null;
+  createdAt: string;
+}
+
+interface User {
+  _id: string;
+  role: "NGO" | "RESTAURANT";
+}
+
+interface BucketSummary {
+  label: string;
+  total: number;
+  pending: number;
+  accepted: number;
+  pickedUp: number;
+}
+
+const ALL_RESTAURANTS = "ALL_RESTAURANTS";
+
+const getWeekNumber = (date: Date) => {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
+};
+
+const getBucketLabel = (dateString: string, trendType: TrendType) => {
+  const date = new Date(dateString);
+
+  if (trendType === "monthly") {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+  }
+
+  if (trendType === "weekly") {
+    const weekNo = getWeekNumber(date);
+    return `${date.getFullYear()}-W${String(weekNo).padStart(2, "0")}`;
+  }
+
+  return date.toISOString().slice(0, 10);
+};
+
+const getRestaurantMeta = (donation: Donation) => {
+  if (!donation.restaurantId) {
+    return { id: "UNKNOWN", name: "Unknown Restaurant" };
+  }
+
+  if (typeof donation.restaurantId === "string") {
+    return { id: donation.restaurantId, name: "Restaurant" };
+  }
+
+  return {
+    id: donation.restaurantId._id || "UNKNOWN",
+    name: donation.restaurantId.restaurantName || donation.restaurantId.name || "Restaurant",
+  };
+};
 
 const Analytics: React.FC = () => {
-  const [summary, setSummary] = useState<any>(null);
-  const [trends, setTrends] = useState<any[]>([]);
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [ngos, setNgos] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
-  const [trendType, setTrendType] = useState<"daily" | "weekly" | "monthly">("daily");
+  const [trendType, setTrendType] = useState<TrendType>("daily");
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState<string>(ALL_RESTAURANTS);
 
   useEffect(() => {
     const fetchAnalytics = async () => {
       setLoading(true);
       try {
-        const [summaryRes, trendsRes] = await Promise.all([
-          api.get("/admin/analytics/summary"),
-          api.get(`/admin/analytics/trends?type=${trendType}`),
+        const [donationsRes, usersRes] = await Promise.all([
+          api.get("/admin/donations"),
+          api.get("/admin/users"),
         ]);
-        setSummary(summaryRes.data);
-        setTrends(trendsRes.data.trends || []);
+        setDonations((donationsRes.data.donations || []) as Donation[]);
+        const users = (usersRes.data.users || []) as User[];
+        setNgos(users.filter((u) => u.role === "NGO"));
       } catch (error) {
         console.error("Failed to fetch analytics:", error);
       } finally {
@@ -26,31 +100,100 @@ const Analytics: React.FC = () => {
     };
 
     fetchAnalytics();
-  }, [trendType]);
+  }, []);
 
-  const getStatusLabel = (status: string) => {
-    const labels: Record<string, string> = {
-      PENDING: "Pending",
-      ACCEPTED: "Accepted",
-      PICKED_UP: "Picked Up",
-    };
-    return labels[status] || status;
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "PENDING":
-        return "bg-yellow-500";
-      case "ACCEPTED":
-        return "bg-blue-500";
-      case "PICKED_UP":
-        return "bg-green-500";
-      default:
-        return "bg-gray-500";
+  const restaurants = useMemo(() => {
+    const map = new Map<string, { id: string; name: string }>();
+    for (const donation of donations) {
+      const meta = getRestaurantMeta(donation);
+      map.set(meta.id, meta);
     }
-  };
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [donations]);
 
-  const maxTrendValue = Math.max(...trends.map((t) => t.count), 1);
+  const filteredDonations = useMemo(() => {
+    if (selectedRestaurantId === ALL_RESTAURANTS) return donations;
+
+    return donations.filter((d) => getRestaurantMeta(d).id === selectedRestaurantId);
+  }, [donations, selectedRestaurantId]);
+
+  const totals = useMemo(() => {
+    const totalDonations = filteredDonations.length;
+    const foodSavedKg = filteredDonations.reduce((acc, d) => acc + (d.quantity || 0), 0);
+    const mealImpact = foodSavedKg * 2;
+
+    const engagedNgoIds = new Set(
+      filteredDonations
+        .map((d) => (typeof d.ngoId === "string" ? d.ngoId : d.ngoId?._id))
+        .filter(Boolean),
+    );
+
+    const ngoEngagement = ngos.length > 0 ? (engagedNgoIds.size / ngos.length) * 100 : 0;
+
+    return {
+      totalDonations,
+      foodSavedKg,
+      mealImpact,
+      engagedNgoCount: engagedNgoIds.size,
+      ngoCount: ngos.length,
+      ngoEngagement,
+    };
+  }, [filteredDonations, ngos]);
+
+  const trendData = useMemo(() => {
+    const bucketMap = new Map<string, BucketSummary>();
+
+    for (const donation of filteredDonations) {
+      const label = getBucketLabel(donation.createdAt, trendType);
+      const existing = bucketMap.get(label) || {
+        label,
+        total: 0,
+        pending: 0,
+        accepted: 0,
+        pickedUp: 0,
+      };
+
+      existing.total += 1;
+      if (donation.status === "PENDING") existing.pending += 1;
+      if (donation.status === "ACCEPTED") existing.accepted += 1;
+      if (donation.status === "PICKED_UP") existing.pickedUp += 1;
+      bucketMap.set(label, existing);
+    }
+
+    return Array.from(bucketMap.values()).sort((a, b) => a.label.localeCompare(b.label));
+  }, [filteredDonations, trendType]);
+
+  const statusBreakdown = useMemo(() => {
+    const pending = filteredDonations.filter((d) => d.status === "PENDING").length;
+    const accepted = filteredDonations.filter((d) => d.status === "ACCEPTED").length;
+    const pickedUp = filteredDonations.filter((d) => d.status === "PICKED_UP").length;
+
+    return [
+      { name: "Pending", value: pending, color: "#f59e0b" },
+      { name: "Accepted", value: accepted, color: "#3b82f6" },
+      { name: "Picked Up", value: pickedUp, color: "#10b981" },
+    ];
+  }, [filteredDonations]);
+
+  const restaurantComparison = useMemo(() => {
+    const map = new Map<
+      string,
+      { name: string; total: number; pickedUp: number; foodSavedKg: number }
+    >();
+
+    for (const donation of donations) {
+      const { id, name } = getRestaurantMeta(donation);
+      const bucket = map.get(id) || { name, total: 0, pickedUp: 0, foodSavedKg: 0 };
+      bucket.total += 1;
+      bucket.foodSavedKg += donation.quantity || 0;
+      if (donation.status === "PICKED_UP") bucket.pickedUp += 1;
+      map.set(id, bucket);
+    }
+
+    return Array.from(map.values())
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 8);
+  }, [donations]);
 
   if (loading) {
     return (
@@ -62,49 +205,67 @@ const Analytics: React.FC = () => {
 
   return (
     <div>
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-xl shadow p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500">Total Donations</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {summary?.totalDonations || 0}
-              </p>
-            </div>
-            <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-              <TrendingUp className="text-purple-600" size={24} />
-            </div>
+      <div className="bg-white rounded-xl shadow p-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div>
+            <p className="text-sm text-gray-500">Analytics Scope</p>
+            <p className="text-base font-semibold text-gray-900">Restaurant-wise view</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Building2 size={16} className="text-gray-500" />
+            <select
+              value={selectedRestaurantId}
+              onChange={(e) => setSelectedRestaurantId(e.target.value)}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+            >
+              <option value={ALL_RESTAURANTS}>All Restaurants</option>
+              {restaurants.map((restaurant) => (
+                <option key={restaurant.id} value={restaurant.id}>
+                  {restaurant.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
-
-        {summary?.statusBreakdown?.map((item: any) => (
-          <div key={item._id} className="bg-white rounded-xl shadow p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">{getStatusLabel(item._id)}</p>
-                <p className="text-3xl font-bold text-gray-900">{item.count}</p>
-              </div>
-              <div
-                className={`w-12 h-12 rounded-full flex items-center justify-center ${getStatusColor(
-                  item._id
-                )} bg-opacity-20`}
-              >
-                {item._id === "PICKED_UP" ? (
-                  <TrendingUp className={getStatusColor(item._id).replace("bg", "text")} size={24} />
-                ) : (
-                  <TrendingDown className={getStatusColor(item._id).replace("bg", "text")} size={24} />
-                )}
-              </div>
-            </div>
-          </div>
-        ))}
       </div>
 
-      {/* Trends Chart */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white rounded-xl shadow p-5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-gray-500">Total Donations</p>
+            <Calendar size={18} className="text-purple-600" />
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{totals.totalDonations}</p>
+        </div>
+        <div className="bg-white rounded-xl shadow p-5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-gray-500">Food Saved (kg)</p>
+            <Leaf size={18} className="text-green-600" />
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{totals.foodSavedKg}</p>
+        </div>
+        <div className="bg-white rounded-xl shadow p-5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-gray-500">Meal Impact</p>
+            <HandHeart size={18} className="text-blue-600" />
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{totals.mealImpact}</p>
+        </div>
+        <div className="bg-white rounded-xl shadow p-5">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-gray-500">NGO Engagement</p>
+            <Users size={18} className="text-amber-600" />
+          </div>
+          <p className="text-2xl font-bold text-gray-900">{Math.round(totals.ngoEngagement)}%</p>
+          <p className="text-xs text-gray-500 mt-1">
+            {totals.engagedNgoCount}/{totals.ngoCount} NGOs engaged
+          </p>
+        </div>
+      </div>
+
       <div className="bg-white rounded-xl shadow p-6 mb-6">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-semibold text-gray-900">Donation Trends</h3>
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-lg font-semibold text-gray-900">Contribution Trends</h3>
           <div className="flex gap-2">
             {(["daily", "weekly", "monthly"] as const).map((type) => (
               <button
@@ -121,88 +282,70 @@ const Analytics: React.FC = () => {
             ))}
           </div>
         </div>
-
-        {trends.length === 0 ? (
-          <div className="flex items-center justify-center h-48 text-gray-500">
+        {trendData.length === 0 ? (
+          <div className="h-64 flex items-center justify-center text-gray-500">
             No trend data available
           </div>
         ) : (
-          <div className="space-y-3">
-            {trends.map((trend, index) => (
-              <div key={index} className="flex items-center gap-4">
-                <div className="w-24 text-sm text-gray-500">
-                  {trend._id}
-                </div>
-                <div className="flex-1">
-                  <div className="h-8 bg-gray-100 rounded-lg overflow-hidden">
-                    <div
-                      className="h-full bg-purple-600 rounded-lg transition-all duration-500"
-                      style={{
-                        width: `${(trend.count / maxTrendValue) * 100}%`,
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="w-12 text-right">
-                  <span className="font-medium text-gray-900">{trend.count}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <LineTrendChart
+            data={trendData}
+            xKey="label"
+            series={[{ dataKey: "total", name: "Total Donations", color: "#7c3aed" }]}
+          />
         )}
       </div>
 
-      {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl shadow p-4">
-          <div className="flex items-center gap-2 text-gray-500 mb-2">
-            <Calendar size={16} />
-            <span className="text-sm">Daily Average</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900">
-            {trends.length > 0
-              ? (trends.reduce((acc, t) => acc + t.count, 0) / trends.length).toFixed(1)
-              : "0"}
-          </p>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
+        <div className="bg-white rounded-xl shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-5">Status Trend</h3>
+          {trendData.length === 0 ? (
+            <div className="h-64 flex items-center justify-center text-gray-500">
+              No status data available
+            </div>
+          ) : (
+            <StackedTrendBars
+              data={trendData}
+              xKey="label"
+              series={[
+                { dataKey: "pending", name: "Pending", color: "#f59e0b" },
+                { dataKey: "accepted", name: "Accepted", color: "#3b82f6" },
+                { dataKey: "pickedUp", name: "Picked Up", color: "#10b981" },
+              ]}
+            />
+          )}
         </div>
-        <div className="bg-white rounded-xl shadow p-4">
-          <div className="flex items-center gap-2 text-gray-500 mb-2">
-            <TrendingUp size={16} />
-            <span className="text-sm">Best Day</span>
-          </div>
-          <p className="text-xl font-bold text-gray-900">
-            {trends.length > 0
-              ? trends.reduce((max, t) => (t.count > max.count ? t : max), trends[0])._id
-              : "-"}
-          </p>
+
+        <div className="bg-white rounded-xl shadow p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-5">Donation Status Mix</h3>
+          {statusBreakdown.every((item) => item.value === 0) ? (
+            <div className="h-64 flex items-center justify-center text-gray-500">
+              No status breakdown available
+            </div>
+          ) : (
+            <DonutBreakdownChart data={statusBreakdown} />
+          )}
         </div>
-        <div className="bg-white rounded-xl shadow p-4">
-          <div className="flex items-center gap-2 text-gray-500 mb-2">
-            <TrendingDown size={16} />
-            <span className="text-sm">Lowest Day</span>
+      </div>
+
+      <div className="bg-white rounded-xl shadow p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-5">
+          Top Restaurants Contribution
+        </h3>
+        {restaurantComparison.length === 0 ? (
+          <div className="h-64 flex items-center justify-center text-gray-500">
+            No restaurant comparison data available
           </div>
-          <p className="text-xl font-bold text-gray-900">
-            {trends.length > 0
-              ? trends.reduce((min, t) => (t.count < min.count ? t : min), trends[0])._id
-              : "-"}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl shadow p-4">
-          <div className="flex items-center gap-2 text-gray-500 mb-2">
-            <TrendingUp size={16} />
-            <span className="text-sm">Completion Rate</span>
-          </div>
-          <p className="text-2xl font-bold text-gray-900">
-            {summary?.totalDonations
-              ? Math.round(
-                  ((summary.statusBreakdown?.find((s: any) => s._id === "PICKED_UP")?.count || 0) /
-                    summary.totalDonations) *
-                    100
-                )
-              : 0}
-            %
-          </p>
-        </div>
+        ) : (
+          <StackedTrendBars
+            data={restaurantComparison}
+            xKey="name"
+            stackId="restaurant"
+            series={[
+              { dataKey: "total", name: "Total Donations", color: "#8b5cf6" },
+              { dataKey: "pickedUp", name: "Picked Up", color: "#10b981" },
+            ]}
+          />
+        )}
       </div>
     </div>
   );

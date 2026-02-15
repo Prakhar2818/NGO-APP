@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Utensils, Clock, CheckCircle, TrendingUp, Plus } from "lucide-react";
 import Navbar from "../../../../components/Navbar";
 import CreateDonation from "./CreateDonation";
@@ -8,6 +8,23 @@ import MetricCard from "../../../../components/MetricCard";
 import api from "../../../../../services/api";
 import { logout } from "../../../../../utils/token";
 import { useNavigate } from "react-router-dom";
+import LineTrendChart from "../../../../components/charts/LineTrendChart";
+import StackedTrendBars from "../../../../components/charts/StackedTrendBars";
+import DonutBreakdownChart from "../../../../components/charts/DonutBreakdownChart";
+
+interface RestaurantDonation {
+  _id: string;
+  foodName: string;
+  quantity: number;
+  foodType: string;
+  expiryTime: string;
+  pickupAddress: string;
+  status: "PENDING" | "ACCEPTED" | "PICKED_UP";
+  ngo?: {
+    organizationName: string;
+  };
+  createdAt: string;
+}
 
 const RestaurantDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
@@ -21,13 +38,13 @@ const RestaurantDashboard: React.FC = () => {
     meals: 0,
   });
 
-  const [donations, setDonations] = useState<any[]>([]);
+  const [donations, setDonations] = useState<RestaurantDonation[]>([]);
 
   const navigate = useNavigate();
 
   const fetchDashboardData = () => {
     api.get("/donation/restaurant/dashboard").then((res) => {
-      const d = res.data.donations;
+      const d = res.data.donations as RestaurantDonation[];
       setDonations(d);
       setStats({
         total: d.length,
@@ -41,6 +58,43 @@ const RestaurantDashboard: React.FC = () => {
   useEffect(() => {
     fetchDashboardData();
   }, []);
+
+  const trendData = useMemo(() => {
+    const map = new Map<
+      string,
+      { label: string; total: number; pending: number; accepted: number; pickedUp: number; quantityKg: number }
+    >();
+
+    for (const donation of donations) {
+      const label = new Date(donation.createdAt).toISOString().slice(0, 10);
+      const bucket = map.get(label) || {
+        label,
+        total: 0,
+        pending: 0,
+        accepted: 0,
+        pickedUp: 0,
+        quantityKg: 0,
+      };
+
+      bucket.total += 1;
+      bucket.quantityKg += donation.quantity || 0;
+      if (donation.status === "PENDING") bucket.pending += 1;
+      if (donation.status === "ACCEPTED") bucket.accepted += 1;
+      if (donation.status === "PICKED_UP") bucket.pickedUp += 1;
+      map.set(label, bucket);
+    }
+
+    return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label));
+  }, [donations]);
+
+  const statusMix = useMemo(
+    () => [
+      { name: "Pending", value: donations.filter((d) => d.status === "PENDING").length, color: "#f59e0b" },
+      { name: "Accepted", value: donations.filter((d) => d.status === "ACCEPTED").length, color: "#3b82f6" },
+      { name: "Picked Up", value: donations.filter((d) => d.status === "PICKED_UP").length, color: "#10b981" },
+    ],
+    [donations],
+  );
 
   const handleLogout = async () => {
     try {
@@ -134,6 +188,62 @@ const RestaurantDashboard: React.FC = () => {
                   View Active
                 </button>
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6 sm:mt-8">
+              <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                  Donation Contribution Trend
+                </h3>
+                {trendData.length === 0 ? (
+                  <div className="h-64 flex items-center justify-center text-gray-500">
+                    No trend data available
+                  </div>
+                ) : (
+                  <LineTrendChart
+                    data={trendData}
+                    xKey="label"
+                    series={[
+                      { dataKey: "total", name: "Donations", color: "#7c3aed" },
+                      { dataKey: "quantityKg", name: "Food (kg)", color: "#22c55e" },
+                    ]}
+                  />
+                )}
+              </div>
+
+              <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                  Donation Status Mix
+                </h3>
+                {statusMix.every((item) => item.value === 0) ? (
+                  <div className="h-64 flex items-center justify-center text-gray-500">
+                    No status data available
+                  </div>
+                ) : (
+                  <DonutBreakdownChart data={statusMix} />
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow p-4 sm:p-6 mt-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                Status Trend by Day
+              </h3>
+              {trendData.length === 0 ? (
+                <div className="h-64 flex items-center justify-center text-gray-500">
+                  No status trend available
+                </div>
+              ) : (
+                <StackedTrendBars
+                  data={trendData}
+                  xKey="label"
+                  series={[
+                    { dataKey: "pending", name: "Pending", color: "#f59e0b" },
+                    { dataKey: "accepted", name: "Accepted", color: "#3b82f6" },
+                    { dataKey: "pickedUp", name: "Picked Up", color: "#10b981" },
+                  ]}
+                />
+              )}
             </div>
           </>
         )}
