@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { HandHeart, Clock, CheckCircle, Search, Users, TrendingUp } from "lucide-react";
-import DashboardLayout from "../../../../components/DashboardLayout";
-import DashboardOverview from "../../../../components/DashboardOverview";
+import { HandHeart, Clock, CheckCircle, TrendingUp, Search, Users } from "lucide-react";
+import Navbar from "../../../../components/Navbar";
 import BrowseDonations from "./BrowseDonation";
 import ActiveDonations from "./ActiveDonations";
 import DonationHistory from "./DonationHistory";
+import MetricCard from "../../../../components/MetricCard";
 import NotificationPanel from "../../../../components/NotificationPanel";
 import { socket, stopSocketCycle } from "../../../../../socket";
 import { logout } from "../../../../../utils/token";
@@ -17,9 +17,16 @@ import DonutBreakdownChart from "../../../../components/charts/DonutBreakdownCha
 
 interface NgoDonation {
   _id: string;
+  foodName?: string;
+  quantity?: number;
+  foodType?: string;
   status: "ACCEPTED" | "PICKED_UP" | "PENDING";
   acceptedAt?: string;
   pickedUpAt?: string;
+  createdAt?: string;
+  restaurant?: {
+    restaurantName: string;
+  };
 }
 
 const NGODashboard: React.FC = () => {
@@ -31,19 +38,9 @@ const NGODashboard: React.FC = () => {
     totalAccepted: 0,
     active: 0,
     completed: 0,
-    pending: 0
+    pending: 0,
+    meals: 0,
   });
-
-  const handleTabChange = (key: string) => {
-    setActiveTab(key as "overview" | "browse" | "active" | "history");
-  };
-
-  const tabs = [
-    { key: "overview", label: "Overview", icon: <Users size={20} /> },
-    { key: "browse", label: "Browse", icon: <Search size={20} /> },
-    { key: "active", label: "Active", icon: <Clock size={20} /> },
-    { key: "history", label: "History", icon: <TrendingUp size={20} /> },
-  ];
 
   const [ngoDonations, setNgoDonations] = useState<NgoDonation[]>([]);
 
@@ -100,7 +97,7 @@ const NGODashboard: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
+  const fetchDashboardData = () => {
     api.get("/donation/ngo/history").then((res) => {
       const d = res.data.donations as NgoDonation[];
       setNgoDonations(d);
@@ -109,44 +106,49 @@ const NGODashboard: React.FC = () => {
         active: d.filter((x: any) => x.status === "ACCEPTED").length,
         completed: d.filter((x: any) => x.status === "PICKED_UP").length,
         pending: d.filter((x: any) => x.status === "PENDING").length,
+        meals: d.reduce((s: number, x: any) => s + (x.quantity || 0), 0),
       });
     });
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
   }, []);
 
-  const acceptancePickupTrend = useMemo(() => {
-    const bucketMap = new Map<
+  const trendData = useMemo(() => {
+    const map = new Map<
       string,
-      { label: string; accepted: number; pickedUp: number }
+      { label: string; total: number; accepted: number; pickedUp: number; quantityKg: number }
     >();
 
     for (const donation of ngoDonations) {
-      if (donation.acceptedAt) {
-        const acceptedLabel = new Date(donation.acceptedAt).toISOString().slice(0, 10);
-        const acceptedBucket = bucketMap.get(acceptedLabel) || {
-          label: acceptedLabel,
-          accepted: 0,
-          pickedUp: 0,
-        };
-        acceptedBucket.accepted += 1;
-        bucketMap.set(acceptedLabel, acceptedBucket);
-      }
+      const label = donation.acceptedAt
+        ? new Date(donation.acceptedAt).toISOString().slice(0, 10)
+        : donation.createdAt
+        ? new Date(donation.createdAt).toISOString().slice(0, 10)
+        : null;
 
-      if (donation.pickedUpAt) {
-        const pickupLabel = new Date(donation.pickedUpAt).toISOString().slice(0, 10);
-        const pickupBucket = bucketMap.get(pickupLabel) || {
-          label: pickupLabel,
-          accepted: 0,
-          pickedUp: 0,
-        };
-        pickupBucket.pickedUp += 1;
-        bucketMap.set(pickupLabel, pickupBucket);
-      }
+      if (!label) continue;
+
+      const bucket = map.get(label) || {
+        label,
+        total: 0,
+        accepted: 0,
+        pickedUp: 0,
+        quantityKg: 0,
+      };
+
+      bucket.total += 1;
+      bucket.quantityKg += donation.quantity || 0;
+      if (donation.status === "ACCEPTED") bucket.accepted += 1;
+      if (donation.status === "PICKED_UP") bucket.pickedUp += 1;
+      map.set(label, bucket);
     }
 
-    return Array.from(bucketMap.values()).sort((a, b) => a.label.localeCompare(b.label));
+    return Array.from(map.values()).sort((a, b) => a.label.localeCompare(b.label));
   }, [ngoDonations]);
 
-  const acceptancePickupMix = useMemo(
+  const statusMix = useMemo(
     () => [
       { name: "Active Pickups", value: stats.active, color: "#f59e0b" },
       { name: "Picked Up", value: stats.completed, color: "#10b981" },
@@ -187,20 +189,32 @@ const NGODashboard: React.FC = () => {
   };
 
   return (
-    <DashboardLayout
+    <Navbar
       title="NGO Dashboard"
-      tabs={tabs}
+      tabs={[
+        { key: "overview", label: "Overview" },
+        { key: "browse", label: "Browse" },
+        { key: "active", label: "Active" },
+        { key: "history", label: "History" },
+      ]}
       activeTab={activeTab}
-      onTabChange={handleTabChange}
+      onTabChange={(k) => setActiveTab(k as any)}
       showNotificationBell
       notificationCount={notifications.length}
       onBellClick={() => setShowPanel((p) => !p)}
-      userName="NGO User"
+      rightSlot={
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl font-medium transition-colors"
+        >
+          Logout
+        </button>
+      }
     >
       {showPanel && (
         <div className="absolute top-16 right-4 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
-          <NotificationPanel 
-            notifications={notifications} 
+          <NotificationPanel
+            notifications={notifications}
             onClose={() => setShowPanel(false)}
             localNotificationsEnabled={localNotificationsEnabled}
             notificationPermission={notificationPermission}
@@ -210,15 +224,134 @@ const NGODashboard: React.FC = () => {
       )}
 
       <div className="max-w-7xl mx-auto">
+        {/* Page header */}
+        <div className="mb-6 sm:mb-8">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            {activeTab === "overview" && "Dashboard Overview"}
+            {activeTab === "browse" && "Browse Available Donations"}
+            {activeTab === "active" && "Active Donations"}
+            {activeTab === "history" && "Donation History"}
+          </h2>
+          <p className="text-sm sm:text-base text-gray-500 mt-1">
+            {activeTab === "overview" && "Track your pickup impact and statistics"}
+            {activeTab === "browse" && "Find and accept available donations from restaurants"}
+            {activeTab === "active" && "Manage your ongoing pickups"}
+            {activeTab === "history" && "View your completed pickups"}
+          </p>
+        </div>
+
         {activeTab === "overview" && (
-          <DashboardOverview stats={stats} />
+          <>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+              <MetricCard
+                label="Total Accepted"
+                value={stats.totalAccepted}
+                icon={<HandHeart className="w-4 h-4 sm:w-5 sm:h-5" />}
+              />
+              <MetricCard
+                label="Meals Received"
+                value={stats.meals}
+                icon={<TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" />}
+              />
+              <MetricCard
+                label="Active"
+                value={stats.active}
+                icon={<Clock className="w-4 h-4 sm:w-5 sm:h-5" />}
+              />
+              <MetricCard
+                label="Completed"
+                value={stats.completed}
+                icon={<CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />}
+              />
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Quick Actions</h3>
+              <div className="flex flex-wrap gap-3 sm:gap-4">
+                <button
+                  onClick={() => setActiveTab("browse")}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition-colors text-sm sm:text-base"
+                >
+                  <Search size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  Browse Donations
+                </button>
+                <button
+                  onClick={() => setActiveTab("active")}
+                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-medium transition-colors text-sm sm:text-base"
+                >
+                  View Active
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mt-6 sm:mt-8">
+              <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                  Pickup Trend
+                </h3>
+                {trendData.length === 0 ? (
+                  <div className="h-64 flex items-center justify-center text-gray-500">
+                    No trend data available
+                  </div>
+                ) : (
+                  <LineTrendChart
+                    data={trendData}
+                    xKey="label"
+                    series={[
+                      { dataKey: "total", name: "Donations", color: "#7c3aed" },
+                      { dataKey: "quantityKg", name: "Food", color: "#22c55e" },
+                    ]}
+                  />
+                )}
+              </div>
+
+              <div className="bg-white rounded-xl shadow p-4 sm:p-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                  Pickup Status Mix
+                </h3>
+                {statusMix.every((item) => item.value === 0) ? (
+                  <div className="h-64 flex items-center justify-center text-gray-500">
+                    No status data available
+                  </div>
+                ) : (
+                  <DonutBreakdownChart data={statusMix} />
+                )}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow p-4 sm:p-6 mt-6">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-4">
+                Status Trend by Day
+              </h3>
+              {trendData.length === 0 ? (
+                <div className="h-64 flex items-center justify-center text-gray-500">
+                  No status trend available
+                </div>
+              ) : (
+                <StackedTrendBars
+                  data={trendData}
+                  xKey="label"
+                  series={[
+                    { dataKey: "accepted", name: "Accepted", color: "#3b82f6" },
+                    { dataKey: "pickedUp", name: "Picked Up", color: "#10b981" },
+                  ]}
+                />
+              )}
+            </div>
+          </>
         )}
 
         {activeTab === "browse" && <BrowseDonations />}
-        {activeTab === "active" && <ActiveDonations />}
-        {activeTab === "history" && <DonationHistory />}
+        {activeTab === "active" && (
+          <ActiveDonations />
+        )}
+        {activeTab === "history" && (
+          <DonationHistory />
+        )}
       </div>
-    </DashboardLayout>
+    </Navbar>
   );
 };
 

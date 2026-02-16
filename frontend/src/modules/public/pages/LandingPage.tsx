@@ -117,7 +117,7 @@ const LandingPage: React.FC = () => {
 
       {/* Hero Section */}
       <Section backgroundColor="white" padding="xm">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-12 items-center" id="impact">
           <div>
             <div className="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-800 rounded-full text-sm font-medium mb-6">
               <Users size={16} className="mr-2" />
@@ -172,7 +172,6 @@ const LandingPage: React.FC = () => {
               </div>
             </div>
             <div
-              id="impact"
               className="rounded-2xl p-6 bg-white/80 backdrop-blur-sm shadow-lg"
             >
               <h3 className="text-xl font-bold mb-4 text-gray-900">

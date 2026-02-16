@@ -205,7 +205,7 @@ const RestaurantDashboard: React.FC = () => {
                     xKey="label"
                     series={[
                       { dataKey: "total", name: "Donations", color: "#7c3aed" },
-                      { dataKey: "quantityKg", name: "Food (kg)", color: "#22c55e" },
+                      { dataKey: "quantityKg", name: "Food", color: "#22c55e" },
                     ]}
                   />
                 )}

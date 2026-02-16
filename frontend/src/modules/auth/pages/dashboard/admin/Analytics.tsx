@@ -19,6 +19,8 @@ interface Donation {
     restaurantName?: string;
   } | string | null;
   createdAt: string;
+  acceptedAt?: string;
+  pickedUpAt?: string;
 }
 
 interface User {
@@ -144,7 +146,21 @@ const Analytics: React.FC = () => {
     const bucketMap = new Map<string, BucketSummary>();
 
     for (const donation of filteredDonations) {
-      const label = getBucketLabel(donation.createdAt, trendType);
+      let dateString: string | null = null;
+      
+      if (donation.status === "PENDING") {
+        dateString = donation.createdAt;
+      } else if (donation.status === "ACCEPTED" && donation.acceptedAt) {
+        dateString = donation.acceptedAt;
+      } else if (donation.status === "PICKED_UP" && donation.pickedUpAt) {
+        dateString = donation.pickedUpAt;
+      } else {
+        dateString = donation.createdAt;
+      }
+
+      if (!dateString) continue;
+
+      const label = getBucketLabel(dateString, trendType);
       const existing = bucketMap.get(label) || {
         label,
         total: 0,
