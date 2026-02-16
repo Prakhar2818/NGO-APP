@@ -69,7 +69,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
               <HeartHandshake className="text-white" size={24} />
             </div>
-            <span className="text-xl font-bold text-gray-900">NGO Connect</span>
+            <span className="text-xl font-bold text-gray-900">FoodBridge</span>
           </Link>
         </div>
 
@@ -189,7 +189,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                   <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
                     <HeartHandshake className="text-white" size={20} />
                   </div>
-                  <span className="text-lg font-bold text-gray-900">NGO Connect</span>
+                  <span className="text-lg font-bold text-gray-900">FoodBridge</span>
                 </Link>
                 <button
                   onClick={() => setIsMobileMenuOpen(false)}

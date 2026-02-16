@@ -16,6 +16,19 @@ import Section from "../../components/ui/Section";
 import Card from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 
+const heroImage =
+  "https://images.unsplash.com/photo-1593113598332-cd288d649433?w=800&auto=format&fit=crop&q=80";
+const foodDonationImg =
+  "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600&auto=format&fit=crop&q=80";
+const communityImg =
+  "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=600&auto=format&fit=crop&q=80";
+const restaurantImg =
+  "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&auto=format&fit=crop&q=80";
+const ngoImg =
+  "https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?w=600&auto=format&fit=crop&q=80";
+const impactImg =
+  "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=600&auto=format&fit=crop&q=80";
+
 const impactStats = [
   { label: "Meals Delivered", value: "25K+", icon: HeartHandshake },
   { label: "Partner NGOs", value: "120+", icon: Users },
@@ -55,23 +68,31 @@ const howItWorksSteps = [
     title: "Register Your Organization",
     description:
       "Create an account as a restaurant or NGO with verified credentials.",
+    image:
+      "https://images.unsplash.com/photo-1552664730-d307ca884978?w=400&auto=format&fit=crop&q=80",
   },
   {
     step: 2,
     title: "Create or Browse Donations",
     description:
       "Restaurants post available food, NGOs browse and accept suitable donations.",
+    image:
+      "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&auto=format&fit=crop&q=80",
   },
   {
     step: 3,
     title: "Coordinate Pickup",
     description:
       "Schedule pickup times and coordinate logistics between parties.",
+    image:
+      "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=400&auto=format&fit=crop&q=80",
   },
   {
     step: 4,
     title: "Track Impact",
     description: "Monitor successful deliveries and measure community impact.",
+    image:
+      "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&auto=format&fit=crop&q=80",
   },
 ];
 
@@ -80,18 +101,18 @@ const LandingPage: React.FC = () => {
 
   useEffect(() => {
     if (location.hash) {
-      const id = location.hash.replace('#', '');
+      const id = location.hash.replace("#", "");
       const element = document.getElementById(id);
       if (element) {
         setTimeout(() => {
-          element.scrollIntoView({ behavior: 'smooth' });
+          element.scrollIntoView({ behavior: "smooth" });
         }, 100);
       }
     }
   }, [location.hash]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-accent-50 font-mono">
       <PublicNavbar />
 
       {/* Hero Section */}
@@ -136,9 +157,28 @@ const LandingPage: React.FC = () => {
             </div>
           </div>
           <div className="relative">
-            <div id="impact" className="rounded-2xl p-8">
-              <h3 className="text-2xl font-bold mb-6">Impact Snapshot</h3>
-              <div className="grid grid-cols-2 gap-4">
+            {/* Hero Image */}
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl mb-6">
+              <img
+                src={heroImage}
+                alt="Food donation and community support"
+                className="w-full h-64 md:h-80 object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-primary-900/60 to-transparent"></div>
+              <div className="absolute bottom-4 left-4 right-4">
+                <p className="text-white text-lg font-semibold">
+                  Connecting surplus food with those who need it most
+                </p>
+              </div>
+            </div>
+            <div
+              id="impact"
+              className="rounded-2xl p-6 bg-white/80 backdrop-blur-sm shadow-lg"
+            >
+              <h3 className="text-xl font-bold mb-4 text-gray-900">
+                Impact Snapshot
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
                 {impactStats.map((item) => {
                   const Icon = item.icon;
                   return (
@@ -175,6 +215,48 @@ const LandingPage: React.FC = () => {
           </p>
         </div>
 
+        {/* Feature Images Grid */}
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          <div className="relative rounded-xl overflow-hidden shadow-lg group">
+            <img
+              src={foodDonationImg}
+              alt="Food donation"
+              className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary-900/70 to-transparent"></div>
+            <div className="absolute bottom-4 left-4">
+              <p className="text-white font-semibold">Food Rescue</p>
+              <p className="text-white/80 text-sm">
+                Saving surplus meals daily
+              </p>
+            </div>
+          </div>
+          <div className="relative rounded-xl overflow-hidden shadow-lg group">
+            <img
+              src={communityImg}
+              alt="Community support"
+              className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary-900/70 to-transparent"></div>
+            <div className="absolute bottom-4 left-4">
+              <p className="text-white font-semibold">Community Impact</p>
+              <p className="text-white/80 text-sm">Feeding the needy</p>
+            </div>
+          </div>
+          <div className="relative rounded-xl overflow-hidden shadow-lg group">
+            <img
+              src={restaurantImg}
+              alt="Restaurant partners"
+              className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-primary-900/70 to-transparent"></div>
+            <div className="absolute bottom-4 left-4">
+              <p className="text-white font-semibold">Restaurant Partners</p>
+              <p className="text-white/80 text-sm">Growing network daily</p>
+            </div>
+          </div>
+        </div>
+
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {features.map((feature) => {
             const Icon = feature.icon;
@@ -209,66 +291,73 @@ const LandingPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="relative">
-          <div className="hidden lg:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-200 transform -translate-x-1/2"></div>
-
-          <div className="grid lg:grid-cols-2 gap-12">
-            {howItWorksSteps.map((step, index) => (
-              <div
-                key={step.step}
-                className={`relative ${index % 2 === 0 ? "lg:pr-12" : "lg:pl-12 lg:col-start-2"}`}
-              >
-                <div className="flex items-start space-x-6">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-lg shadow-lg">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {howItWorksSteps.map((step) => (
+            <div key={step.step} className="relative group">
+              <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-xl h-full">
+                <div className="relative h-40 overflow-hidden">
+                  <img
+                    src={step.image}
+                    alt={step.title}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <div className="absolute top-3 left-3">
+                    <div className="w-10 h-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-bold text-lg shadow-lg">
                       {step.step}
                     </div>
                   </div>
-                  <Card className="flex-1 transition-transform hover:-translate-y-1">
-                    <h3 className="text-xl font-bold text-gray-900 mb-3">
-                      {step.title}
-                    </h3>
-                    <p className="text-gray-600">{step.description}</p>
-                  </Card>
                 </div>
-              </div>
-            ))}
-          </div>
+                <div className="p-5">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    {step.title}
+                  </h3>
+                  <p className="text-gray-600 text-sm">{step.description}</p>
+                </div>
+              </Card>
+            </div>
+          ))}
         </div>
       </Section>
 
       {/* Final CTA Section */}
       <Section backgroundColor="secondary" padding="xl">
-        <div className="text-center">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Ready to Reduce Food Waste at Scale?
-          </h2>
-          <p className="text-xl text-gray-800 mb-8 max-w-2xl mx-auto">
-            Join thousands of organizations making a difference in their
-            communities
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/login">
-              <Button
-                size="lg"
-                className="cursor-pointer transition transform hover:scale-[1.02]"
-              >
-                Sign In to Your Account
-              </Button>
-            </Link>
-            <Link to="/register">
-              <Button
-                variant="cta"
-                size="lg"
-                className=" cursor-pointer transition transform hover:scale-[1.02]"
-              >
-                Register Your Organization
-              </Button>
-            </Link>
+        <div className="relative rounded-2xl overflow-hidden">
+          <img
+            src={impactImg}
+            alt="Community impact"
+            className="absolute inset-0 w-full h-full object-cover opacity-20"
+          />
+          <div className="relative z-10 text-center py-8">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Ready to Reduce Food Waste at Scale?
+            </h2>
+            <p className="text-xl text-gray-100 mb-8 max-w-2xl mx-auto">
+              Join thousands of organizations making a difference in their
+              communities
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/login">
+                <Button
+                  size="lg"
+                  className="cursor-pointer transition transform hover:scale-[1.02]"
+                >
+                  Sign In to Your Account
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button
+                  variant="cta"
+                  size="lg"
+                  className=" cursor-pointer transition transform hover:scale-[1.02]"
+                >
+                  Register Your Organization
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
       </Section>
-
       <Footer />
     </div>
   );

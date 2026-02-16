@@ -44,7 +44,7 @@ const Footer: React.FC = () => {
               <div className="w-12 h-12 bg-primary-600 rounded-xl flex items-center justify-center shadow-lg">
                 <HeartHandshake className="text-white" size={28} />
               </div>
-              <span className="text-2xl font-bold">NGO Connect</span>
+              <span className="text-2xl font-bold">FoodBridge</span>
             </div>
             <p className="text-gray-300 mb-6 max-w-md text-lg">
               Connecting restaurants with NGOs to reduce food waste and serve communities in need.
@@ -101,7 +101,7 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-          <p className="text-lg">&copy; {new Date().getFullYear()} NGO Connect. All rights reserved.</p>
+          <p className="text-lg">&copy; {new Date().getFullYear()} FoodBridge. All rights reserved.</p>
         </div>
       </div>
     </footer>
