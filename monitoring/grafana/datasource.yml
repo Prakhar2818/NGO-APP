@@ -1,0 +1,6 @@
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    url: https://ngo-app-mqgs.onrender.com
+    isDefault: true
